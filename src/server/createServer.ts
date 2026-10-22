@@ -1,4 +1,8 @@
 import { createGpuCodeObjectsService } from "../composition/gpu.js";
+import { createForgeBinaryEditorService } from "../composition/forgeBinaryEditor.js";
+import { createForgeJavaService } from "../composition/forgeJava.js";
+import { registerForgeJavaTools } from "./registerForgeJavaTools.js";
+import { registerForgeBinaryEditorTools } from "./registerForgeBinaryEditorTools.js";
 import { registerGpuCodeObjectsTools } from "./registerGpuCodeObjectsTools.js";
 import type { PacketCaptureService } from "../application/captures/PacketCaptureService.js";
 import { UNTRUSTED_CONTENT_INSTRUCTIONS } from "./toolResultEncoding.js";
@@ -442,6 +446,8 @@ export const createServer = (
     environment,
     options.apkSignature,
   );
+  const forgeBinaryEditor = createForgeBinaryEditorService();
+  const forgeJava = createForgeJavaService();
   const packetCapture =
     options.packetCapture ?? createPacketCaptureService(environment);
   const signalRecording =
@@ -464,6 +470,8 @@ export const createServer = (
       fridaInstrumentation.closeAll(),
       wasmArtifact.close(),
       apkSignature.close(),
+      forgeBinaryEditor.close(),
+      forgeJava.close(),
       packetCapture.close(),
       signalRecording.close(),
       apktool.close(),
@@ -675,6 +683,20 @@ export const createServer = (
   registerSignalTools(
     server,
     signalRecording,
+    toolLogger,
+    recordEvidence,
+    analysisAdmission,
+  );
+  registerForgeBinaryEditorTools(
+    server,
+    forgeBinaryEditor,
+    toolLogger,
+    recordEvidence,
+    analysisAdmission,
+  );
+  registerForgeJavaTools(
+    server,
+    forgeJava,
     toolLogger,
     recordEvidence,
     analysisAdmission,

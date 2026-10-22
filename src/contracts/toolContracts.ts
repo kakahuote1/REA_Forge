@@ -1,4 +1,6 @@
 import { GPU_TOOL_CONTRACTS } from "./gpu/gpuToolContracts.js";
+import { FORGE_BINARY_EDITOR_TOOL_CONTRACTS } from "./forge/binaryEditorToolContracts.js";
+import { FORGE_JAVA_TOOL_CONTRACTS } from "./forge/javaToolContracts.js";
 import { CAPTURE_TOOL_CONTRACTS } from "./captures/captureToolContracts.js";
 import { SIGNAL_TOOL_CONTRACTS } from "./signals/signalToolContracts.js";
 import { WASM_TOOL_CONTRACTS } from "./wasm/wasmToolContracts.js";
@@ -87,6 +89,8 @@ export const TOOL_CONTRACTS = [
   ...GDB_TOOL_CONTRACTS,
   ...RIZIN_DEBUG_TOOL_CONTRACTS,
   ...FRIDA_TOOL_CONTRACTS,
+  ...FORGE_BINARY_EDITOR_TOOL_CONTRACTS,
+  ...FORGE_JAVA_TOOL_CONTRACTS,
 ] as const;
 
 /** Resolve a public contract by name while retaining its exact schema types. */

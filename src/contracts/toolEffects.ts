@@ -53,6 +53,106 @@ const sessionEvidence = effects({ mutatesSession: true });
 
 /** Explicit effect audit for every public tool. */
 export const TOOL_EFFECTS: Readonly<Record<string, ToolEffects>> = {
+  forge_inspect_java: effects({
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_decompile_java: effects({
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_disassemble_java: effects({
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_search_java: effects({
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_java_call_graph: effects({
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_edit_java: effects({
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_compare_java: effects({
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_inspect_binary_structure: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_read_binary_bytes: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_search_binary_bytes: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_compare_binary_files: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_edit_binary_copy: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_edit_binary_in_place: effects({
+    mutatesTarget: true,
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    mayDiscardData: true,
+    idempotent: false,
+  }),
+  forge_run_binary_script: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    executesForeignCode: true,
+    idempotent: false,
+  }),
+  forge_list_binary_assets: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_restore_binary_backup: effects({
+    mutatesTarget: true,
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    mayDiscardData: true,
+    idempotent: false,
+  }),
+  forge_read_binary_template_rows: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
   list_cutter_sessions: effects({ accessesNetwork: true }),
   cutter_command: effects({
     mutatesTarget: true,

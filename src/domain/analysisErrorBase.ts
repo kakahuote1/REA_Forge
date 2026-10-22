@@ -255,9 +255,13 @@ import type { FileSnapshotPartialObservation } from "./fileSnapshotObservation.j
 
 import type { WebModuleResolutionObservation } from "./webModuleTrace.js";
 import type { WebNetworkCapture } from "./webNetworkCapture.js";
+import type { BinaryEditorReport } from "./forge/binaryEditor.js";
+import type { JavaReport } from "./forge/javaAnalysis.js";
 
 /** Provider-neutral evidence collected before a typed analysis failure. */
 export type AnalysisPartialObservation =
+  | JavaReport
+  | BinaryEditorReport
   | WebModuleResolutionObservation
   | WebNetworkCapture
   | NativeLoadImagePartialObservation

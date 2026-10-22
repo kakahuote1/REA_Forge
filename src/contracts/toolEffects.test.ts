@@ -17,6 +17,14 @@ const EXECUTION_WORDING =
   /\b(?:run|runs|running|launch|launches|launching|execute|executes|executing|execution|start|starts|install|installs|uninstall|uninstalls)\b/iu;
 
 const EXECUTION_WORDING_EXCEPTIONS: Readonly<Record<string, string>> = {
+  forge_inspect_binary_structure:
+    "runs a reviewed local template, not the analyzed target",
+  forge_read_binary_bytes: "reads file bytes without target execution",
+  forge_list_binary_assets: "asset listing does not approve execution",
+  forge_inspect_java: "reads JVM metadata without running target classes",
+  forge_disassemble_java: "renders bytecode without executing target classes",
+  forge_edit_java:
+    "compilation disables annotation processing and never runs compiled classes",
   inspect_with_objdump:
     "runs a caller-selected inspection tool, not target code",
   start_gdb_session:
@@ -155,6 +163,7 @@ describe("tool effects", () => {
       "close_rizin_debug_session",
       "cutter_command",
       "execute_rizin_command",
+      "forge_run_binary_script",
       "gdb_console",
       "install_adb_package",
       "instrument_with_frida",

@@ -77,3 +77,6 @@ Thumbs.db
 website/_site/
 # Temporary translation output prepared before replacing the complete site.
 website/.i18n-*/
+
+# REA Forge workstation state: plans, private configuration, runtimes and evidence.
+/.forge-local/

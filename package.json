@@ -1,5 +1,6 @@
 {
   "name": "rea-agents",
+  "private": true,
   "mcpName": "io.github.morluto/rea",
   "version": "6.7.0",
   "description": "Reverse engineer anything from your terminal or agent with one CLI and MCP server.",
@@ -51,6 +52,10 @@
     "install.sh",
     "bridge/hopper_bridge.py",
     "bridge/cutter/rea_bridge.py",
+    "bridge/forge/editor010",
+    "bridge/forge/NOTICE.md",
+    "bridge/forge/common",
+    "bridge/forge/java",
     "bridge/native/NativeUIChildren.swift",
     "bridge/native/ReaNativeUI.swift",
     "bridge/native/rea_lldb_tracer.py",
