@@ -1,6 +1,7 @@
 > **REA Forge** — downstream development fork of [morluto/rea](https://github.com/morluto/rea).
 > See [Forge scope](docs/forge/scope.md), [migration map](docs/forge/capability-migration.md),
 > [010 integration](docs/forge/binary-editor.md) and [Java integration](docs/forge/java.md).
+> [Offline CyberChef](docs/forge/cyberchef.md) · [Verified scope](docs/forge/verification.md).
 > Local migration is in progress. This checkout is not an official REA release;
 > inherited package identifiers remain for build compatibility and npm publishing is disabled.
 

@@ -1,5 +1,9 @@
 # 010 Editor integration
 
+`node scripts/forge/verify-editor010-deadline.mjs` separately exercises actual
+35-second native expiry, owned-handle termination and same-connection recovery.
+It does not rerun the unrelated functional inventory.
+
 The Forge extension adds ten typed CLI/MCP operations for binary structure,
 byte search/comparison and controlled edits. It does not embed the former MCP
 server. Each operation uses an owned, non-listening helper; native 010 calls

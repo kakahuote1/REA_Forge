@@ -257,9 +257,11 @@ import type { WebModuleResolutionObservation } from "./webModuleTrace.js";
 import type { WebNetworkCapture } from "./webNetworkCapture.js";
 import type { BinaryEditorReport } from "./forge/binaryEditor.js";
 import type { JavaReport } from "./forge/javaAnalysis.js";
+import type { CyberChefReport } from "./forge/cyberChef.js";
 
 /** Provider-neutral evidence collected before a typed analysis failure. */
 export type AnalysisPartialObservation =
+  | CyberChefReport
   | JavaReport
   | BinaryEditorReport
   | WebModuleResolutionObservation

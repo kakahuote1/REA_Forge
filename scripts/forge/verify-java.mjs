@@ -30,6 +30,72 @@ const companion = join(fixtures, "ForgeCompanion.java");
 const invalid = join(fixtures, "Broken.java");
 const malformed = join(fixtures, "broken.class");
 const assembly = join(fixtures, "replacement.jasm");
+const dead = join(fixtures, "ForgeDeadFixture.class");
+const duplicated = join(fixtures, "ForgeDuplicateFixture.class");
+// Minimal source-owned Java 6 classfiles: static answer(), with either an
+// unreachable second return or two identical class annotations. Never loaded.
+const u2 = (value) => {
+  const bytes = Buffer.alloc(2);
+  bytes.writeUInt16BE(value);
+  return bytes;
+};
+const u4 = (value) => {
+  const bytes = Buffer.alloc(4);
+  bytes.writeUInt32BE(value);
+  return bytes;
+};
+const utf = (value) => {
+  const bytes = Buffer.from(value);
+  return Buffer.concat([Buffer.from([1]), u2(bytes.length), bytes]);
+};
+const classfile = (name, duplicate) => {
+  const pool = [
+    utf(name),
+    Buffer.concat([Buffer.from([7]), u2(1)]),
+    utf("java/lang/Object"),
+    Buffer.concat([Buffer.from([7]), u2(3)]),
+    utf("answer"),
+    utf("()I"),
+    utf("Code"),
+    utf("RuntimeVisibleAnnotations"),
+    utf("LForgeMarker;"),
+  ];
+  const code = duplicate
+    ? Buffer.from([0x03, 0xac])
+    : Buffer.from([0x03, 0xac, 0x04, 0xac]);
+  const body = Buffer.concat([
+    u2(1),
+    u2(0),
+    u4(code.length),
+    code,
+    u2(0),
+    u2(0),
+  ]);
+  const annotations = Buffer.concat([u2(2), u2(9), u2(0), u2(9), u2(0)]);
+  return Buffer.concat([
+    Buffer.from("cafebabe00000032", "hex"),
+    u2(10),
+    ...pool,
+    u2(0x21),
+    u2(2),
+    u2(4),
+    u2(0),
+    u2(0),
+    u2(1),
+    u2(9),
+    u2(5),
+    u2(6),
+    u2(1),
+    u2(7),
+    u4(body.length),
+    body,
+    ...(duplicate
+      ? [u2(1), u2(8), u4(annotations.length), annotations]
+      : [u2(0)]),
+  ]);
+};
+await writeFile(dead, classfile("ForgeDeadFixture", false));
+await writeFile(duplicated, classfile("ForgeDuplicateFixture", true));
 await writeFile(
   source,
   `public class ForgeFixture {
@@ -63,10 +129,9 @@ await writeFile(
 const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
 const originals = new Map(
   await Promise.all(
-    [source, companion, invalid, malformed, assembly].map(async (path) => [
-      path,
-      hash(await readFile(path)),
-    ]),
+    [source, companion, invalid, malformed, assembly, dead, duplicated].map(
+      async (path) => [path, hash(await readFile(path))],
+    ),
   ),
 );
 const report = {
@@ -262,22 +327,31 @@ try {
     assert.ok(JSON.stringify(result.result).includes(expected));
     report.edits.push(action);
   }
-  for (const transformer of [
-    "dead_code_remove",
-    "duplicate_annotation_remove",
+  for (const [transformer, fixture, counter] of [
+    ["dead_code_remove", dead, "instruction_count"],
+    ["duplicate_annotation_remove", duplicated, "class_annotation_count"],
   ]) {
     const edited = await call("forge_edit_java", {
       action: "transform",
-      path: archive,
+      path: fixture,
       transformer,
-      output_name: `${transformer}.jar`,
+      output_name: `${transformer}.class`,
     });
     assert.ok((await readFile(edited.result.derived_artifact.path)).length > 0);
+    assert.equal(edited.result.changed_class_count, 1);
+    assert.ok(
+      edited.result[`${counter}_before`] > edited.result[`${counter}_after`],
+    );
+    assert.notEqual(
+      hash(await readFile(fixture)),
+      edited.result.derived_artifact.sha256,
+    );
     await call("forge_inspect_java", {
       path: edited.result.derived_artifact.path,
     });
     report.edits.push(transformer);
   }
+  report.checks.effectful_dead_code_and_duplicate_annotation_removal = true;
   const renamed = await call("forge_edit_java", {
     action: "rename_class",
     path: archive,

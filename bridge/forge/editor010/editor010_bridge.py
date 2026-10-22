@@ -441,13 +441,15 @@ class Editor010Bridge:
             try:
                 returncode = process.wait(timeout=_NATIVE_TIMEOUT_SECONDS)
             except subprocess.TimeoutExpired:
-                self._kill_tree(process.pid)
+                # Terminate the exact owned process handle. REA owns and settles
+                # the complete helper family; do not signal a historical PID.
+                process.kill()
                 try:
                     process.wait(timeout=5)
                 except subprocess.TimeoutExpired as error:
                     raise EditorBridgeError("owned 010 Editor process tree could not be recovered") from error
                 raise EditorBridgeError("010 Editor no-UI worker exceeded the fixed timeout")
-        return {"argv_shape": argv_shape, "returncode": returncode, "elapsed_seconds": round(time.monotonic() - started, 3), "log_path": str(log), "log_sha256": self._sha256(log)}
+        return {"argv_shape": argv_shape, "returncode": returncode, "owned_wait_completed": True, "elapsed_seconds": round(time.monotonic() - started, 3), "log_path": str(log), "log_sha256": self._sha256(log)}
 
     @staticmethod
     def _read_csv_rows(path: Path) -> list[list[str]]:
@@ -458,13 +460,6 @@ class Editor010Bridge:
                 return [row for _index, row in zip(range(4096), csv.reader(handle))]
         except OSError as error:
             raise EditorBridgeError("010 template CSV could not be read") from error
-
-    @staticmethod
-    def _kill_tree(process_id: int) -> None:
-        try:
-            subprocess.run(("taskkill", "/PID", str(process_id), "/T", "/F"), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=5, check=False, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
-        except OSError:
-            return
 
     def _session(self, session_id: str) -> _Session:
         if not isinstance(session_id, str) or len(session_id) != 32:

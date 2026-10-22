@@ -147,7 +147,8 @@ const receipts = async () => {
       const value = JSON.parse(
         await readFile(join(evidence, filename), "utf8"),
       );
-      if (value.kind === "010_native_started") result.push(value);
+      if (value.kind === "010_native_started")
+        result.push({ ...value, receipt_path: join(evidence, filename) });
     }
   }
   return result;
@@ -183,6 +184,12 @@ try {
       JSON.parse(response.content.find((item) => item.type === "text").text),
     );
     assert.equal(evidence.provider.id, "forge-010editor");
+    if (evidence.normalized_result.result.native !== undefined) {
+      assert.equal(
+        evidence.normalized_result.result.native.owned_wait_completed,
+        true,
+      );
+    }
     return evidence.normalized_result;
   };
   const reject = async (name, args) => {
@@ -353,7 +360,7 @@ try {
   );
   report.checks.invalid_missing_input_and_same_connection_recovery = true;
 
-  const before = new Set((await receipts()).map((item) => item.pid));
+  const before = new Set((await receipts()).map((item) => item.receipt_path));
   const controller = new AbortController();
   const cancelled = rawCall(
     "forge_run_binary_script",
@@ -366,7 +373,9 @@ try {
   let cancelPid;
   const startDeadline = Date.now() + 15_000;
   while (Date.now() < startDeadline) {
-    const receipt = (await receipts()).find((item) => !before.has(item.pid));
+    const receipt = (await receipts()).find(
+      (item) => !before.has(item.receipt_path),
+    );
     if (receipt !== undefined) {
       cancelPid = receipt.pid;
       nativePids.add(cancelPid);
@@ -380,13 +389,19 @@ try {
   assert.ok(
     cancelResult.kind === "rejected" || cancelResult.value.isError === true,
   );
-  const cancelDeadline = Date.now() + 15_000;
-  while (existsPid(cancelPid) && Date.now() < cancelDeadline) await wait(100);
-  assert.equal(
-    existsPid(cancelPid),
-    false,
-    "owned native process remained after cancellation",
+  // Wait for this admitted request's full lifecycle, not a historical PID.
+  const settled = await client.callTool(
+    { name: "close_binary", arguments: {} },
+    { timeout: 20_000, toolDefinition: definitions.get("close_binary") },
   );
+  assert.notEqual(settled.isError, true);
+  assert.deepEqual(
+    (await readdir(join(local, "tmp"))).filter((name) =>
+      name.startsWith("forge-010editor-request-"),
+    ),
+    [],
+  );
+  report.cancelled_native_pid = cancelPid;
   assert.equal(
     (
       await call("forge_read_binary_bytes", {
@@ -404,7 +419,8 @@ try {
     digest(Buffer.concat([bytes, Buffer.from([0])])),
   );
   report.checks.original_inputs_unchanged = true;
-  for (const receipt of await receipts()) nativePids.add(receipt.pid);
+  for (const receipt of await receipts())
+    if (!before.has(receipt.receipt_path)) nativePids.add(receipt.pid);
   report.status = "passed";
 } catch (cause) {
   report.status = "failed";
@@ -415,8 +431,8 @@ try {
     await client.close();
     await transport.close();
     assert.ok(serverPid == null || !existsPid(serverPid));
-    for (const pid of nativePids)
-      assert.equal(existsPid(pid), false, `owned native PID ${pid} remains`);
+    // Successful native calls prove wait() completion on their owned handles.
+    // Historical numeric PIDs can already belong to unrelated processes.
     const pending = (await readdir(join(local, "tmp"))).filter((name) =>
       name.startsWith("forge-010editor-request-"),
     );

@@ -53,6 +53,31 @@ const sessionEvidence = effects({ mutatesSession: true });
 
 /** Explicit effect audit for every public tool. */
 export const TOOL_EFFECTS: Readonly<Record<string, ToolEffects>> = {
+  forge_list_cyberchef_operations: effects({
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_validate_cyberchef_recipe: effects({
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_run_cyberchef_recipe: effects({
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_replay_cyberchef_recipe: effects({
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_suggest_cyberchef_steps: effects({
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
   forge_inspect_java: effects({
     writesFilesystem: true,
     launchesProcess: true,

@@ -154,6 +154,7 @@ export class OwnedStaticHelper<
           expectedCommand: null,
           runId: randomUUID(),
           cwd: ROOT,
+          memoryLimitBytes: 1024 * 1024 * 1024,
         },
         {
           timeoutMs: DEADLINE_MS,

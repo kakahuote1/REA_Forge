@@ -59,6 +59,15 @@ do not establish fewer tokens or faster analysis.
 
 ## Development
 
+For this downstream fork, read [Forge scope](docs/forge/scope.md) and the
+[migration map](docs/forge/capability-migration.md). Workstation progress, engine
+paths and raw receipts belong in ignored `.forge-local/`; the local checklist
+is `.forge-local/MIGRATION_PLAN.md`. Do not equate advertised tools, historical
+legacy approvals or a source copy with verified current capabilities. Do not
+remove a superseded installation before replacement, reference cutover and
+preserved-data checks. Daily client cutover also requires the documented host
+static / guest runtime execution-domain boundary.
+
 Use [.nvmrc](.nvmrc) and `package.json#packageManager` for the pinned toolchain. Cursor Cloud may place older Node.js first on `PATH`; environment setup installs the pinned toolchain under `/usr/local/bin`.
 
 - `npm ci`: install locked dependencies.

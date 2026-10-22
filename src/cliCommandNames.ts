@@ -1,5 +1,10 @@
 /** Canonical names used by every one-shot CLI command registration. */
 export const CLI_COMMANDS = Object.freeze({
+  forgeListCyberChefOperations: "forge-list-cyberchef-operations",
+  forgeValidateCyberChefRecipe: "forge-validate-cyberchef-recipe",
+  forgeRunCyberChefRecipe: "forge-run-cyberchef-recipe",
+  forgeReplayCyberChefRecipe: "forge-replay-cyberchef-recipe",
+  forgeSuggestCyberChefSteps: "forge-suggest-cyberchef-steps",
   forgeInspectJava: "forge-inspect-java",
   forgeDecompileJava: "forge-decompile-java",
   forgeDisassembleJava: "forge-disassemble-java",
