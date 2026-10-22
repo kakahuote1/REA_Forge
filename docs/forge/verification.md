@@ -8,13 +8,14 @@ Workstation verification on Windows, 2026-10-22. This records completed groups,
 not completion of the migration or availability of every upstream provider.
 External engines are separately installed and operator-configured.
 
-| Group             | New tools | Real workflow verified                                                                                                                                                                                                  |
-| ----------------- | --------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 010 Editor        |        10 | Header/ZIP/PNG templates and retained CSV; read/search/native comparison; derived edits, constrained script, original edit/backup/restore; CLI/MCP parity; native cancellation and owned-resource closure               |
-| Java              |         7 | Six decompiler routes; four bytecode renderers; metadata/search/calls; compilation, renaming, export, JASM and archive comparison; effectful dead-code/duplicate-annotation removal; malformed input and CLI/MCP parity |
-| Offline CyberChef |         5 | All twenty reviewed operations; six encoding/compression roundtrips; independent hash/HMAC/CRC/AES vectors; canonical recipes, saved replay, bounded previews, rejection and CLI/MCP parity                             |
+| Group             | New tools | Real workflow verified                                                                                                                                                                                                            |
+| ----------------- | --------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 010 Editor        |        10 | Header/ZIP/PNG templates and retained CSV; read/search/native comparison; derived edits, constrained script, original edit/backup/restore; CLI/MCP parity; native cancellation and owned-resource closure                         |
+| Java              |         7 | Six decompiler routes; four bytecode renderers; metadata/search/calls; compilation, renaming, export, JASM and archive comparison; effectful dead-code/duplicate-annotation removal; malformed input and CLI/MCP parity           |
+| Offline CyberChef |         5 | All twenty reviewed operations; six encoding/compression roundtrips; independent hash/HMAC/CRC/AES vectors; canonical recipes, saved replay, bounded previews, rejection and CLI/MCP parity                                       |
+| .NET / dnSpy      |         5 | C#/VB/IL rendering; metadata/types/resources; thirteen effectful edits and fresh readback; library/console compilation; catch/finally, locals/branches and attribute targets; CLI/MCP parity; active native cancellation/recovery |
 
-The current catalog has 242 entries: 220 inherited plus 22 downstream tools.
+The current catalog has 247 entries: 220 inherited plus 27 downstream tools.
 Catalog presence is not evidence that an external engine, license, device or
 guest is configured. Native target execution, injection and full guest control
 have not been migrated by these static groups. Daily Codex cutover and old
@@ -26,6 +27,12 @@ preserves original hashes, closes owned requests, and retains private receipts.
 Java's transformer tests require a nonzero effect: counters decrease and output
 digests change. Historical numeric PIDs are not treated as process ownership.
 Helper families have a 1 GiB memory bound and enforced command deadlines.
+
+The dnSpy group passed in 143.194 seconds, including 76 successful native
+commands with owned-handle wait completion and a separately observed active
+native cancellation. The group's fixture initializer never ran. This does not
+establish IL runtime correctness or strong-name validity; dnSpy's actual native
+deadline and every permission/capacity fault remain outside this lane.
 
 The direct tool-effects contract tests and affected module-boundary checks pass.
 Full upstream PR regression, every parameter/capacity/permission combination,

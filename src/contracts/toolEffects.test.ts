@@ -17,6 +17,11 @@ const EXECUTION_WORDING =
   /\b(?:run|runs|running|launch|launches|launching|execute|executes|executing|execution|start|starts|install|installs|uninstall|uninstalls)\b/iu;
 
 const EXECUTION_WORDING_EXCEPTIONS: Readonly<Record<string, string>> = {
+  forge_inspect_dotnet: "reads metadata without target CLR execution",
+  forge_decompile_dotnet:
+    "decompiler renders metadata without executing target code",
+  forge_compile_dotnet:
+    "fixed compiler emits bytes without running compiled assemblies or generators",
   forge_inspect_binary_structure:
     "runs a reviewed local template, not the analyzed target",
   forge_read_binary_bytes: "reads file bytes without target execution",

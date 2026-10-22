@@ -1,6 +1,7 @@
 import { GPU_TOOL_CONTRACTS } from "./gpu/gpuToolContracts.js";
 import { FORGE_BINARY_EDITOR_TOOL_CONTRACTS } from "./forge/binaryEditorToolContracts.js";
 import { FORGE_JAVA_TOOL_CONTRACTS } from "./forge/javaToolContracts.js";
+import { FORGE_DOTNET_TOOL_CONTRACTS } from "./forge/dotnetToolContracts.js";
 import { FORGE_CYBERCHEF_TOOL_CONTRACTS } from "./forge/cyberChefToolContracts.js";
 import { CAPTURE_TOOL_CONTRACTS } from "./captures/captureToolContracts.js";
 import { SIGNAL_TOOL_CONTRACTS } from "./signals/signalToolContracts.js";
@@ -92,6 +93,7 @@ export const TOOL_CONTRACTS = [
   ...FRIDA_TOOL_CONTRACTS,
   ...FORGE_BINARY_EDITOR_TOOL_CONTRACTS,
   ...FORGE_JAVA_TOOL_CONTRACTS,
+  ...FORGE_DOTNET_TOOL_CONTRACTS,
   ...FORGE_CYBERCHEF_TOOL_CONTRACTS,
 ] as const;
 

@@ -57,6 +57,7 @@
     "bridge/forge/common",
     "bridge/forge/java",
     "bridge/forge/cyberchef",
+    "bridge/forge/dotnet",
     "bridge/native/NativeUIChildren.swift",
     "bridge/native/ReaNativeUI.swift",
     "bridge/native/rea_lldb_tracer.py",

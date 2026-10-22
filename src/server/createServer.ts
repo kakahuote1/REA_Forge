@@ -1,6 +1,8 @@
 import { createGpuCodeObjectsService } from "../composition/gpu.js";
 import { createForgeBinaryEditorService } from "../composition/forgeBinaryEditor.js";
 import { createForgeJavaService } from "../composition/forgeJava.js";
+import { createForgeDotnetService } from "../composition/forgeDotnet.js";
+import { registerForgeDotnetTools } from "./registerForgeDotnetTools.js";
 import { createForgeCyberChefService } from "../composition/forgeCyberChef.js";
 import { registerForgeCyberChefTools } from "./registerForgeCyberChefTools.js";
 import { registerForgeJavaTools } from "./registerForgeJavaTools.js";
@@ -450,6 +452,7 @@ export const createServer = (
   );
   const forgeBinaryEditor = createForgeBinaryEditorService();
   const forgeJava = createForgeJavaService();
+  const forgeDotnet = createForgeDotnetService();
   const forgeCyberChef = createForgeCyberChefService();
   const packetCapture =
     options.packetCapture ?? createPacketCaptureService(environment);
@@ -475,6 +478,7 @@ export const createServer = (
       apkSignature.close(),
       forgeBinaryEditor.close(),
       forgeJava.close(),
+      forgeDotnet.close(),
       forgeCyberChef.close(),
       packetCapture.close(),
       signalRecording.close(),
@@ -708,6 +712,13 @@ export const createServer = (
   registerForgeCyberChefTools(
     server,
     forgeCyberChef,
+    toolLogger,
+    recordEvidence,
+    analysisAdmission,
+  );
+  registerForgeDotnetTools(
+    server,
+    forgeDotnet,
     toolLogger,
     recordEvidence,
     analysisAdmission,

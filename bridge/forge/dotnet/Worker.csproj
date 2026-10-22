@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
+    <LangVersion>9.0</LangVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableNETAnalyzers>false</EnableNETAnalyzers>
+    <UseSharedCompilation>false</UseSharedCompilation>
+    <AssemblyName>REAForgeDnSpyWorker</AssemblyName>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Reference Include="dnlib"><HintPath>$(DnSpyBin)/dnlib.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="dnSpy.Contracts.Logic"><HintPath>$(DnSpyBin)/dnSpy.Contracts.Logic.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="dnSpy.Decompiler"><HintPath>$(DnSpyBin)/dnSpy.Decompiler.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="dnSpy.Decompiler.ILSpy.Core"><HintPath>$(DnSpyBin)/dnSpy.Decompiler.ILSpy.Core.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Microsoft.CodeAnalysis"><HintPath>$(DnSpyBin)/Microsoft.CodeAnalysis.dll</HintPath><Private>true</Private></Reference>
+    <Reference Include="Microsoft.CodeAnalysis.CSharp"><HintPath>$(DnSpyBin)/Microsoft.CodeAnalysis.CSharp.dll</HintPath><Private>true</Private></Reference>
+  </ItemGroup>
+</Project>
