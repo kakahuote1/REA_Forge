@@ -1,5 +1,31 @@
 # Verified downstream scope
 
+## Python non-model subset, 2026-10-25
+
+Current real CLI/MCP evidence covers native CPython facts, native PyInstaller
+inventory/extraction with 157 output hashes, all three xdis renderings,
+uncompyle6/decompyle3 reconstruction and text readback, explicit engine/version
+refusal, an actual 1 ms library deadline, cancellation/recovery and CLI routing.
+The source group passed 38 cases plus 113 module boundaries; the test dependency
+type graph passed. Production builds passed, with the final affected build
+taking 86.891 seconds. Current stdio startup passed in 8.245 seconds with 265
+tools and 45 Forge entries, including missing-model isolation. Daily Codex
+registration remains unchanged.
+
+Modern PyLingual inference has not passed current Forge acceptance. The real
+attempt was refused before model loading at 1,974,095,872 available bytes,
+below the configured 3 GiB admission. Temporarily suspending the task-started
+Win10 preserved its state but yielded only 2,748,981,248 available bytes. The
+VM was resumed and its single UID11 snapshot remained unchanged, without a
+pending consolidation. Other VMs and VM settings were not changed.
+
+The producing error now uses REA's retryable `resource_constraint` category,
+not unsupported-target reporting. Its deterministic refusal/cleanup tail passed
+in 4.477 seconds using an owned policy fixture, without loading models or
+re-running passed bytecode engines. The G06 checkbox stays open for actual
+3.9–3.12 inference and remaining group closure. CPU time and peak process-family
+memory were not measured. See [Python scope](python-bytecode.md).
+
 ## Offline traffic and API documents, 2026-10-25
 
 Nine added operations share the native CLI/MCP/Evidence path. The installed

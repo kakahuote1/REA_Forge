@@ -22,11 +22,12 @@ import {
   AnalysisInputError,
   AnalysisOutputError,
   AnalysisTimeoutError,
+  AnalysisResourceConstraintError,
 } from "../domain/analysisErrorCore.js";
 import { analysisErrorWithCleanupFailure } from "../domain/analysisErrorCleanup.js";
 import { ProviderCleanupError } from "../domain/providerCleanupError.js";
 import { err, ok, type Result } from "../domain/result.js";
-import type { JsonValue } from "../domain/jsonValue.js";
+import { jsonObjectSchema, type JsonValue } from "../domain/jsonValue.js";
 import {
   OwnedCommandFailure,
   runOwnedCommand,
@@ -60,6 +61,10 @@ export class OwnedStaticHelper<
     readonly reportSchema: z.ZodType<Report>,
     readonly family: ForgeStaticFamily,
     environment: Readonly<NodeJS.ProcessEnv>,
+    readonly budget: {
+      readonly deadlineMs: number;
+      readonly memoryLimitBytes: number;
+    } = { deadlineMs: DEADLINE_MS, memoryLimitBytes: 1024 * 1024 * 1024 },
   ) {
     this.#environment = snapshotEnvironment(environment);
   }
@@ -189,10 +194,10 @@ export class OwnedStaticHelper<
             [FORGE_STATIC_CONFIG_SETTING]: configurationSnapshot,
             [FORGE_DATA_ROOT_SETTING]: configuration.dataRoot,
           },
-          memoryLimitBytes: 1024 * 1024 * 1024,
+          memoryLimitBytes: this.budget.memoryLimitBytes,
         },
         {
-          timeoutMs: DEADLINE_MS,
+          timeoutMs: this.budget.deadlineMs,
           diagnosticBytes: 8 * 1024 * 1024,
           acceptNonZeroExit: true,
         },
@@ -211,6 +216,7 @@ export class OwnedStaticHelper<
             kind: z.string(),
             message: z.string(),
             timeout_ms: z.int().positive().optional(),
+            reported_limits: jsonObjectSchema.optional(),
           }),
         }),
       ]);
@@ -224,21 +230,34 @@ export class OwnedStaticHelper<
       if (!decoded.data.ok) {
         const failure = decoded.data.error;
         outcome = err(
-          failure.kind === "TimeoutError" && failure.timeout_ms !== undefined
-            ? new AnalysisTimeoutError(operation, failure.timeout_ms)
-            : [
-                  "ValueError",
-                  "EditorAdmissionError",
-                  "PolicyViolation",
-                ].includes(failure.kind)
-              ? new AnalysisInputError(operation, {
-                  userMessage: failure.message,
-                })
-              : new AnalysisCapabilityUnavailableError(
-                  this.provider,
-                  operation,
-                  failure.message,
-                ),
+          failure.kind === "ModelMemoryAdmissionError"
+            ? new AnalysisResourceConstraintError(
+                operation,
+                "memory",
+                failure.message,
+                failure.reported_limits ?? null,
+                {
+                  retryable: true,
+                  remediationAction:
+                    "Retry when sufficient free memory is available; no model was loaded. Do not change the target or lower the resource policy to bypass admission.",
+                },
+              )
+            : failure.kind === "TimeoutError" &&
+                failure.timeout_ms !== undefined
+              ? new AnalysisTimeoutError(operation, failure.timeout_ms)
+              : [
+                    "ValueError",
+                    "EditorAdmissionError",
+                    "PolicyViolation",
+                  ].includes(failure.kind)
+                ? new AnalysisInputError(operation, {
+                    userMessage: failure.message,
+                  })
+                : new AnalysisCapabilityUnavailableError(
+                    this.provider,
+                    operation,
+                    failure.message,
+                  ),
         );
       } else if (
         snapshot.exitCode !== 0 ||

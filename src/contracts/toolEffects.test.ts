@@ -17,6 +17,12 @@ const EXECUTION_WORDING =
   /\b(?:run|runs|running|launch|launches|launching|execute|executes|executing|execution|start|starts|install|installs|uninstall|uninstalls)\b/iu;
 
 const EXECUTION_WORDING_EXCEPTIONS: Readonly<Record<string, string>> = {
+  forge_disassemble_python:
+    "trusted xdis reads bytes without target execution or source fallback",
+  forge_decompile_legacy_python:
+    "trusted legacy decompilers reconstruct text without target execution",
+  forge_decompile_modern_python:
+    "offline models compile generated text but do not execute it",
   forge_follow_packet_stream:
     "offline stream reconstruction without sockets or target execution",
   forge_inspect_api_asset: "reads exported documents without starting Apipost",

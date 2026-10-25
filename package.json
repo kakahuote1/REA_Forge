@@ -60,6 +60,7 @@
     "bridge/forge/dotnet",
     "bridge/forge/enrichment",
     "bridge/forge/traffic",
+    "bridge/forge/python_reverse",
     "bridge/native/NativeUIChildren.swift",
     "bridge/native/ReaNativeUI.swift",
     "bridge/native/rea_lldb_tracer.py",

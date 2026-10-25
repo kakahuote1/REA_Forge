@@ -102,9 +102,10 @@ def stage_input(selected: dict, source_path: str, workspace: Path, *, leaf: str,
 
 
 def run_native(argv: list[str], workspace: Path, *, timeout_ms: int, prefix: str,
-               maximum: int = MAX_RESULT, environment_overrides: dict[str, str] | None = None) -> tuple[Path, Path, dict]:
+               maximum: int = MAX_RESULT, environment_overrides: dict[str, str] | None = None,
+               maximum_timeout_ms: int = 45000) -> tuple[Path, Path, dict]:
     """The outer REA job owns this helper and all inherited engine descendants."""
-    if isinstance(timeout_ms, bool) or not isinstance(timeout_ms, int) or not 1 <= timeout_ms <= 45000:
+    if isinstance(timeout_ms, bool) or not isinstance(timeout_ms, int) or not 1 <= timeout_ms <= maximum_timeout_ms:
         raise ValueError("invalid static engine deadline")
     if Path(prefix).name != prefix:
         raise ValueError("invalid fixed output prefix")

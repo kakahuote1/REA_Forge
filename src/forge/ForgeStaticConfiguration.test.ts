@@ -213,6 +213,37 @@ describe("explicit Forge static configuration", () => {
 });
 
 describe("independent native engine readiness", () => {
+  it("keeps bytecode inspection and readback present without models", async () => {
+    const input = await fixture();
+    const input_roots = [input.inputs];
+    await writeFile(
+      input.configurationPath,
+      JSON.stringify({
+        ...input.document,
+        xdis: {
+          input_roots,
+          python: { path: input.python, sha256: "a".repeat(64) },
+          xdis: { path: input.inputs, sha256: "a".repeat(64) },
+        },
+        python_results: { input_roots },
+      }),
+    );
+    for (const family of ["xdis", "python_results"] as const)
+      expect(
+        await inspectForgeStaticConfiguration(
+          family,
+          input.environment,
+          owner(),
+        ),
+      ).toMatchObject({ status: "available" });
+    expect(
+      await inspectForgeStaticConfiguration(
+        "pylingual",
+        input.environment,
+        owner(),
+      ),
+    ).toMatchObject({ status: "unavailable", code: "not_configured" });
+  });
   it("isolates enrichment engine presence and admits retained readback without an engine", async () => {
     const input = await fixture();
     const input_roots = input.document.editor010.input_roots;

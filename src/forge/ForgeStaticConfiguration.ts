@@ -19,7 +19,11 @@ export type ForgeStaticFamily =
   | "enrichment"
   | "pcap"
   | "api_documents"
-  | "traffic";
+  | "traffic"
+  | "xdis"
+  | "python_legacy"
+  | "pylingual"
+  | "python_results";
 export const FORGE_STATIC_CONFIG_SETTING = "REA_FORGE_STATIC_CONFIG";
 export const FORGE_DATA_ROOT_SETTING = "REA_FORGE_DATA_ROOT";
 const MAX_CONFIGURATION_BYTES = 64 * 1024;
@@ -169,6 +173,22 @@ export const inspectForgeStaticConfiguration = async (
       const pin = pinSchema.parse(value.tshark);
       await requirePath(pin.path);
       z.string().min(1).parse(value.version);
+    } else if (family === "xdis" || family === "python_legacy") {
+      await requirePath(pinSchema.parse(value.python).path);
+      const names =
+        family === "xdis"
+          ? ["xdis"]
+          : ["xdis", "spark_parser", "uncompyle6", "decompyle3"];
+      await Promise.all(
+        names.map(async (name) => {
+          const pin = pinSchema.parse(value[name]);
+          await requirePath(pin.path, true);
+        }),
+      );
+    } else if (family === "pylingual") {
+      await requirePath(pinSchema.parse(value.python).path);
+      await requirePath(pinSchema.parse(value.models_manifest).path);
+      await requirePath(absolutePath.parse(value.root), true);
     } else if (family === "cyberchef") {
       const node = pinSchema.parse(value.node);
       const root = absolutePath.parse(value.root);

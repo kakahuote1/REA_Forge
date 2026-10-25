@@ -249,6 +249,15 @@ try {
         assert.equal(observed?.available, !packetOperations.has(name), name);
       }
       report.checks.missing_tshark_preserves_api_documents_and_traffic_readback = true;
+      const withoutModels = JSON.parse(snapshot.toString("utf8").replace(/^\uFEFF/u, ""));
+      delete withoutModels.pylingual;
+      await writeFile(environment.REA_FORGE_STATIC_CONFIG, JSON.stringify(withoutModels));
+      const modelMissing = await call("binary_session", {});
+      for (const { name } of expected) {
+        const observed = modelMissing.result.tool_availability.groups.find(group => group.names.includes(name));
+        assert.equal(observed?.available, name !== "forge_decompile_modern_python", name);
+      }
+      report.checks.missing_models_preserves_xdis_legacy_and_python_readback = true;
       await writeFile(environment.REA_FORGE_STATIC_CONFIG, "{");
       const malformed = await call("binary_session", {});
       for (const { name } of expected)

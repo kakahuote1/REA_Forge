@@ -41,3 +41,13 @@ For exported OpenAPI/Swagger/Postman JSON use `forge_inspect_api_asset`,
 `forge_compare_api_assets` or `forge_export_api_asset`. These inspect documents,
 not Apipost GUI projects or live API suites. Read saved pages/text/exact bytes
 with `forge_read_traffic_result` using the returned receipt digest.
+
+For Python, use native `inspect_python_pyc` for supported CPython header/marshal
+facts and native artifact inspection/extraction for PyInstaller. Use
+`forge_disassemble_python` for xdis facts and versioned disassembly;
+`forge_decompile_legacy_python` selects uncompyle6/decompyle3 from actual version
+facts. Its source is unverified reconstruction. `forge_read_python_result`
+pages retained text. The modern `forge_decompile_modern_python` model path is
+still under current Forge acceptance; do not present historical model passes
+as current integration proof. Honor `resource_constraint`; do not automatically
+download models, change the sample or weaken admission to retry it.

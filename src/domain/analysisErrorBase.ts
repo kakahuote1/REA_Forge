@@ -261,9 +261,11 @@ import type { DotnetReport } from "./forge/dotnetAnalysis.js";
 import type { CyberChefReport } from "./forge/cyberChef.js";
 import type { EnrichmentReport } from "./forge/nativeEnrichment.js";
 import type { TrafficReport } from "./forge/offlineTraffic.js";
+import type { PythonBytecodeReport } from "./forge/pythonBytecode.js";
 
 /** Provider-neutral evidence collected before a typed analysis failure. */
 export type AnalysisPartialObservation =
+  | PythonBytecodeReport
   | TrafficReport
   | EnrichmentReport
   | CyberChefReport
