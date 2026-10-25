@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ArtifactResourceScope } from "../artifacts/ArtifactResourceScope.js";
 import {
@@ -394,6 +394,22 @@ describe("independent native engine readiness", () => {
         owner(),
       ),
     ).toMatchObject({ status: "unavailable" });
+    const configured = JSON.parse(
+      await readFile(input.configurationPath, "utf8"),
+    );
+    configured.ida_host.idalib = pin;
+    configured.ida_host.approved_plugins = Array.from(
+      { length: 10 },
+      () => pin,
+    );
+    await writeFile(input.configurationPath, JSON.stringify(configured));
+    expect(
+      await inspectForgeStaticConfiguration(
+        "ida_host",
+        input.environment,
+        owner(),
+      ),
+    ).toMatchObject({ status: "available" });
   });
   it("keeps system readback independent of an absent scanner without launching either", async () => {
     const input = await fixture();

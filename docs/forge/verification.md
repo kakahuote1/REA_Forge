@@ -16,8 +16,11 @@ are not debugger-backend authority. Module observations are not a trace of all
 past execution or an operating-system/network sandbox. No licensing state,
 original binary or human GUI database was modified or target executed.
 
-The final tail took16.884seconds for34checks, reusing digest-verified outputs
-from the46.272second main chain. Actual native expiry, cancellation/recovery,
+The main tail took16.884seconds for34checks, reusing digest-verified outputs
+from the46.272second main chain. A2.882second readiness tail raised the total
+to35checks and verified all eleven tools before opening a binary, correcting
+an obsolete eight-file ceiling for the ten pinned built-in support files.
+Actual native expiry, cancellation/recovery,
 missing-engine isolation and owned cleanup passed. Source292unique checks,
 type validation and a23.531second production build passed; lint had no errors
 and retained scoped style/complexity warnings. CPU/peak memory were unmeasured.

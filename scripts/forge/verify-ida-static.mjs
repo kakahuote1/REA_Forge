@@ -202,6 +202,21 @@ try {
     );
     return report.values[name];
   };
+  await step("target_free_ida_readiness", async () => {
+    const value = await raw("binary_session", {});
+    assert.notEqual(value.isError, true, JSON.stringify(value));
+    const status = JSON.parse(
+      value.content.find((part) => part.type === "text").text,
+    );
+    for (const name of FORGE_IDA_OPERATIONS) {
+      const group = status.result.tool_availability.groups.find((item) =>
+        item.names.includes(name),
+      );
+      assert.equal(group?.available, true, `${name}: ${JSON.stringify(group)}`);
+    }
+    assert.equal(status.result.open, false);
+    return { ready: true, opened_target: false };
+  });
   const queried = await step(
     "safe_query_and_profile",
     () =>

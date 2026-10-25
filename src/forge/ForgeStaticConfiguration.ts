@@ -207,7 +207,7 @@ export const inspectForgeStaticConfiguration = async (
         z
           .array(pinSchema)
           .min(1)
-          .max(8)
+          .max(10)
           .parse(value.approved_plugins)
           .map(async (pin) => requirePath(pin.path)),
       );
