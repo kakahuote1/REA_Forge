@@ -23,10 +23,12 @@ SCOPE = {
     "dotnet-java": ("re_dnspy", "re_recaf", "re_vineflower", "re_cfr",
                     "re_bytecode_viewer", "re_javap"),
     "android-static": ("re_jadx", "re_apktool", "re_smali", "re_signing", "re_apk_meta"),
-    "android-runtime": ("re_ldplayer", "re_ldplayer_adb", "re_ldplayer_frida",
-                        "re_ldplayer_profile", "re_ldplayer_oneclick"),
-    "harmony": ("re_hap_inspect", "re_hap_jadx", "re_hap_abcde", "re_hap_sign", "re_ark_disasm"),
-    "pe": ("re_pe_workbench", "re_pe_unpack_workbench"),
+    "android-runtime": ("re_adb", "re_frida", "re_android_dynamic_chain", "re_ldplayer",
+                        "re_ldplayer_adb", "re_ldplayer_frida", "re_ldplayer_profile", "re_ldplayer_oneclick"),
+    "harmony": ("re_hap_inspect", "re_hap_jadx", "re_hap_abcde", "re_hap_sign",
+                "re_ark_disasm", "re_hap_artifact_graph"),
+    "pe": ("re_pe_workbench", "re_pe_unpack_workbench", "re_upx"),
+    "native-enrichment": ("re_capa", "re_floss", "re_flare_hashes"),
     "python": ("re_python_decompile_router", "re_pyinstaller", "re_pyinstxtractor_ng",
                "re_xdis", "re_pylingual", "re_uncompyle6", "re_decompyle3"),
     "binary-editor": ("re_010editor",),
@@ -38,7 +40,33 @@ SCOPE = {
 }
 EXCLUDED = {"re_c32asm", "re_gda", "re_dependencies", "re_die", "re_peview",
             "re_hap_viewer", "re_ollydbg", "re_vmprotect", "re_legacy_bundle_admission",
-            "re_legacy_worker_descriptors", "re_core_mock", "re_router"}
+            "re_legacy_worker_descriptors", "re_core_mock", "re_router", "re_jdgui"}
+DELIVERY_GROUPS = {
+    "G01": ("re_010editor",),
+    "G02": ("re_recaf", "re_vineflower", "re_cfr", "re_bytecode_viewer", "re_javap"),
+    "G03": ("re_dnspy",),
+    "G04": ("re_cyberchef",),
+    "G05": ("re_ida",),
+    "G06": SCOPE["python"],
+    "G07": SCOPE["pe"],
+    "G08": SCOPE["native-enrichment"],
+    "G09": SCOPE["android-static"],
+    "G10": SCOPE["harmony"],
+    "G11": ("re_vm_gateway", "re_vm_ida_full", "re_vm_ida_debug"),
+    "G12": ("re_vm_x64dbg", "re_vm_windbg", "re_x64dbg"),
+    "G13": ("re_adb", "re_android_dynamic_chain", "re_ldplayer", "re_ldplayer_adb",
+            "re_ldplayer_profile", "re_ldplayer_oneclick"),
+    "G14": ("re_frida", "re_android_dynamic_chain", "re_ldplayer_frida"),
+    "G15": ("re_fiddler", "re_fiddler_live_android", "re_android_dynamic_chain"),
+    "G16": ("re_wireshark", "re_apipost_offline", "re_vm_apipost"),
+    "G17": SCOPE["system"],
+    "P4": ("re_workbench",),
+    "D01": ("re_burp",),
+    "X01": tuple(sorted(EXCLUDED)),
+    "X03": ("re_b04_clone_executor", "re_b04_clone_plan", "re_p8_pipeline",
+            "re_p9_coverage", "re_p9_global_disposition", "re_p9_inventory_closure",
+            "re_p9_sdk_gui_audit", "re_p9_source_audit", "re_p9_stage_gate"),
+}
 MISSING_FROM_RELEASE_INDEX = {
     "android-static": ["JEB, subject to actual local license and supported interface"],
     "harmony": ["ark_asm", "Linux arkdecompiler", "ReArk/Hyle"],
@@ -54,6 +82,13 @@ def sha256(path: Path) -> str:
 
 def group_for(adapter_id: str) -> str | None:
     return next((group for group, members in SCOPE.items() if adapter_id in members), None)
+
+
+def delivery_groups(adapter_id: str) -> list[str]:
+    selected = [group for group, members in DELIVERY_GROUPS.items() if adapter_id in members]
+    if not selected:
+        raise ValueError(f"Unmapped legacy adapter requires an explicit scope decision: {adapter_id}")
+    return selected
 
 
 def main() -> None:
@@ -77,8 +112,10 @@ def main() -> None:
         declaration = json.loads(manifest.read_text(encoding="utf-8-sig"))
         adapter = declaration.get("adapter_id", manifest.stem)
         group = group_for(adapter)
-        disposition = ("assess-migration" if group else
-                       "excluded-or-superseded" if adapter in EXCLUDED else "historical-review")
+        targets = delivery_groups(adapter)
+        disposition = ("user-deferred" if targets == ["D01"] else
+                       "excluded-or-superseded" if adapter in EXCLUDED else
+                       "superseded-governance" if targets == ["X03"] else "assess-migration")
         artifacts = []
         raw_artifacts = declaration.get("artifacts", [])
         artifact_schema_gaps = []
@@ -107,7 +144,9 @@ def main() -> None:
             receipt = (output.parent / status["receipt"]).resolve(strict=True)
             if not receipt.is_relative_to(output.parent) or json.loads(receipt.read_text(encoding="utf-8"))["status"] != "passed":
                 raise ValueError("migration status does not reference a passed local acceptance")
-        rows.append({"adapter_id": adapter, "group": group, "disposition": disposition,
+        rows.append({"adapter_id": adapter, "group": group, "delivery_groups": targets,
+                     "disposition": disposition,
+                     "declared_capabilities": declaration.get("capabilities", []),
                      "historical_release_status": declaration.get("release_status"),
                      "historical_registration_allowed": declaration.get("codex_registration_allowed"),
                      "pending_scope": declaration.get("pending_scope", []),
@@ -117,10 +156,12 @@ def main() -> None:
                      "forge_status": "verified-migrated-scope" if status else "not-migrated",
                      "forge_verification": status, "old_directory_deletion_allowed": False})
     inventory = {
-        "schema_version": 1, "generated_at": datetime.now(timezone.utc).isoformat(),
+        "schema_version": 2, "generated_at": datetime.now(timezone.utc).isoformat(),
         "legacy_root": str(legacy), "scope": SCOPE,
         "unindexed_requirements": MISSING_FROM_RELEASE_INDEX,
         "summary": {"release_records": len(rows),
+                    "unmapped_records": 0,
+                    "delivery_groups": dict(Counter(target for row in rows for target in row["delivery_groups"])),
                     "dispositions": dict(Counter(row["disposition"] for row in rows)),
                     "historical_release_states": dict(Counter(str(row["historical_release_status"]) for row in rows)),
                     "source_hash_mismatches": sum(artifact["matches_recorded_hash"] is False

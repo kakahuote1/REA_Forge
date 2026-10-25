@@ -4,6 +4,10 @@ This document specifies migration intent. It does not advertise implemented
 Forge tools. The local inventory binds legacy declarations to observed source
 hashes; old approvals do not establish a current Forge pass.
 
+The closed delivery families and native integration boundaries are specified in
+[native integration and delivery](native-delivery.md). Machine-local execution
+continues from the private checklist named in `AGENTS.md`.
+
 | Domain                    | Adopt from official REA                                             | Additional downstream work                                                                                                                                        |
 | ------------------------- | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Native static / IDA       | Existing native queries and Evidence contracts                      | Preserve useful local IDA analysis/extensions and explicitly typed database edits; keep upstream IDA queries read-only                                            |
@@ -17,8 +21,9 @@ hashes; old approvals do not establish a current Forge pass.
 | Python                    | Existing packaged-app inventory and bytecode facts where equivalent | Version-specific decompilation, established older-version engines and PyLingual model/runtime routing                                                             |
 | Binary editing            | Existing artifact identity and comparison semantics                 | 010 templates, byte search, comparison, derived edits, backup and recovery                                                                                        |
 | Cryptography / encoding   | Existing relevant artifact facts                                    | Official local CyberChef recipes, reproducible inputs and outputs                                                                                                 |
-| Traffic                   | Existing offline capture/HAR/SAZ primitives where equivalent        | Fiddler Classic selected-source live control; existing Wireshark/TShark and approved Apipost functionality; Burp/DudeSuite/Yakit conditional gaps remain explicit |
+| Traffic                   | Existing offline capture/HAR/SAZ primitives where equivalent        | Fiddler Classic selected-source live control; existing Wireshark/TShark and approved Apipost functionality; DudeSuite/Yakit remain required investigations; Burp is user-deferred |
 | System investigation      | Existing applicable observation contracts                           | System Informer and Hollows Hunter/PE-sieve workflows plus planned WinDbg, without silently installing drivers                                                    |
+| Native enrichment         | Existing Evidence and native facts                                  | capa rules, FLOSS string recovery and FLARE API-hash lookup are retained capabilities, not obsolete governance                                                   |
 | Human workbench           | Shared CLI/MCP workflows                                            | Reconnect the existing editor/runtime controls to Forge without duplicating the control plane                                                                     |
 
 GDA/C32Asm and superseded generic bundle registries are not separate migration
