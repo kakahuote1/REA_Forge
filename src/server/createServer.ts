@@ -6,6 +6,8 @@ import { FORGE_DOTNET_TOOL_CONTRACTS } from "../contracts/forge/dotnetToolContra
 import { FORGE_CYBERCHEF_TOOL_CONTRACTS } from "../contracts/forge/cyberChefToolContracts.js";
 import { createForgeJavaService } from "../composition/forgeJava.js";
 import { createForgeDotnetService } from "../composition/forgeDotnet.js";
+import { createForgeNativeEnrichmentService } from "../composition/forgeNativeEnrichment.js";
+import { registerForgeNativeEnrichmentTools } from "./registerForgeNativeEnrichmentTools.js";
 import { registerForgeDotnetTools } from "./registerForgeDotnetTools.js";
 import { createForgeCyberChefService } from "../composition/forgeCyberChef.js";
 import { registerForgeCyberChefTools } from "./registerForgeCyberChefTools.js";
@@ -457,6 +459,7 @@ export const createServer = (
   const forgeBinaryEditor = createForgeBinaryEditorService(environment);
   const forgeJava = createForgeJavaService(environment);
   const forgeDotnet = createForgeDotnetService(environment);
+  const forgeEnrichment = createForgeNativeEnrichmentService(environment);
   const forgeCyberChef = createForgeCyberChefService(environment);
   const packetCapture =
     options.packetCapture ?? createPacketCaptureService(environment);
@@ -483,6 +486,7 @@ export const createServer = (
       forgeBinaryEditor.close(),
       forgeJava.close(),
       forgeDotnet.close(),
+      forgeEnrichment.close(),
       forgeCyberChef.close(),
       packetCapture.close(),
       signalRecording.close(),
@@ -727,6 +731,13 @@ export const createServer = (
     recordEvidence,
     analysisAdmission,
   );
+  registerForgeNativeEnrichmentTools(
+    server,
+    forgeEnrichment,
+    toolLogger,
+    recordEvidence,
+    analysisAdmission,
+  );
   registerConfiguredAnalysisTools(
     toolContext,
     android,
@@ -787,13 +798,17 @@ export const createServer = (
         apktool.inspectAvailability(signal),
       jebAnalysisAvailability: (signal) => jeb.inspectAvailability(signal),
       forgeStaticAvailability: async (signal) => {
-        const [editor, java, dotnet, cyberchef] = await Promise.all([
-          forgeBinaryEditor.inspectAvailability(signal),
-          forgeJava.inspectAvailability(signal),
-          forgeDotnet.inspectAvailability(signal),
-          forgeCyberChef.inspectAvailability(signal),
-        ]);
+        const [editor, java, dotnet, cyberchef, enrichment] = await Promise.all(
+          [
+            forgeBinaryEditor.inspectAvailability(signal),
+            forgeJava.inspectAvailability(signal),
+            forgeDotnet.inspectAvailability(signal),
+            forgeCyberChef.inspectAvailability(signal),
+            forgeEnrichment.inspectAvailability(signal),
+          ],
+        );
         return Object.fromEntries([
+          ...Object.entries(enrichment),
           ...FORGE_BINARY_EDITOR_TOOL_CONTRACTS.map(({ name }) => [
             name,
             editor,

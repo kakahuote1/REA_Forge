@@ -8,7 +8,15 @@ import { readRegularFileText } from "../application/RegularFileRead.js";
 import { AnalysisCancelledError } from "../domain/analysisErrorCore.js";
 import { jsonObjectSchema, type JsonValue } from "../domain/jsonValue.js";
 
-export type ForgeStaticFamily = "editor010" | "java" | "dotnet" | "cyberchef";
+export type ForgeStaticFamily =
+  | "editor010"
+  | "java"
+  | "dotnet"
+  | "cyberchef"
+  | "capa"
+  | "floss"
+  | "api_hashes"
+  | "enrichment";
 export const FORGE_STATIC_CONFIG_SETTING = "REA_FORGE_STATIC_CONFIG";
 export const FORGE_DATA_ROOT_SETTING = "REA_FORGE_DATA_ROOT";
 const MAX_CONFIGURATION_BYTES = 64 * 1024;
@@ -144,7 +152,17 @@ export const inspectForgeStaticConfiguration = async (
           "runtime/dotnet5/dotnet.exe",
         ].map((relative) => requirePath(join(config.dataRoot, relative))),
       );
-    } else {
+    } else if (
+      family === "capa" ||
+      family === "floss" ||
+      family === "api_hashes"
+    ) {
+      const pin = pinSchema.parse(
+        value[family === "api_hashes" ? "database" : "executable"],
+      );
+      await requirePath(pin.path);
+      z.string().min(1).parse(value.version);
+    } else if (family === "cyberchef") {
       const node = pinSchema.parse(value.node);
       const root = absolutePath.parse(value.root);
       await requirePath(node.path);

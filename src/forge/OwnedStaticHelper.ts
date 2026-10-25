@@ -207,7 +207,11 @@ export class OwnedStaticHelper<
         z.strictObject({ ok: z.literal(true), value: this.reportSchema }),
         z.strictObject({
           ok: z.literal(false),
-          error: z.strictObject({ kind: z.string(), message: z.string() }),
+          error: z.strictObject({
+            kind: z.string(),
+            message: z.string(),
+            timeout_ms: z.int().positive().optional(),
+          }),
         }),
       ]);
       const decoded = replySchema.safeParse(JSON.parse(snapshot.stdout.text));
@@ -220,17 +224,21 @@ export class OwnedStaticHelper<
       if (!decoded.data.ok) {
         const failure = decoded.data.error;
         outcome = err(
-          ["ValueError", "EditorAdmissionError", "PolicyViolation"].includes(
-            failure.kind,
-          )
-            ? new AnalysisInputError(operation, {
-                userMessage: failure.message,
-              })
-            : new AnalysisCapabilityUnavailableError(
-                this.provider,
-                operation,
-                failure.message,
-              ),
+          failure.kind === "TimeoutError" && failure.timeout_ms !== undefined
+            ? new AnalysisTimeoutError(operation, failure.timeout_ms)
+            : [
+                  "ValueError",
+                  "EditorAdmissionError",
+                  "PolicyViolation",
+                ].includes(failure.kind)
+              ? new AnalysisInputError(operation, {
+                  userMessage: failure.message,
+                })
+              : new AnalysisCapabilityUnavailableError(
+                  this.provider,
+                  operation,
+                  failure.message,
+                ),
         );
       } else if (
         snapshot.exitCode !== 0 ||

@@ -14,3 +14,9 @@ if creating a separate engine distribution.
 dnSpy/dnlib, dnSpy's ILSpy decompilers, Roslyn and the .NET runtime also remain
 separate installed dependencies under their own licenses. Only the owner's
 authored static adapter source is migrated here; engine DLLs are not committed.
+
+capa and FLOSS executables and the FLARE-IDA shellcode hash database are
+operator-supplied Mandiant dependencies under their respective Apache-2.0
+licenses. The Forge source invokes their fixed local CLI/read-only database
+interfaces; their binaries, bundled rules and database are not redistributed
+in this repository. Preserve their notices when moving private runtime assets.

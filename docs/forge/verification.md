@@ -1,5 +1,30 @@
 # Verified downstream scope
 
+## Native enrichment, 2026-10-25
+
+Five target-free operations now share native CLI/MCP/Evidence: pinned capa
+capability rules, FLOSS strings, FLARE hash-type/catalog lookup and retained
+result paging. Actual capa 9.4.0 and FLOSS 3.1.1 analyzed a source-generated,
+unexecuted PE. Checks observed a real XOR rule with addresses/ATT&CK/MBC,
+a known static string, and the known XOR-created marker as decoded/tight
+strings. An independently calculated ROR13+ADD vector matched LoadLibraryA.
+
+The concentrated engine run and affected-tail completion cover retained JSON
+digests/paging, malformed inputs, an actual 1 ms native deadline, active
+cancellation/recovery, CLI/MCP equality, original preservation and closed
+temporary/process owners. Two verifier assertions were repaired at their
+representations: case-insensitive rule naming and canonical timeout-envelope
+decoding. Already-passed engine results were hash-verified and reused rather
+than re-running them.
+
+The final production build passed in 68.094 seconds. The affected source checks
+cover 144 unique cases, including 113 module-boundary cases; the test/dependency
+type graph passed. Targeted lint has no errors and retains 16 warnings. A current
+production startup check passed in 6.099 seconds with 252 tools, 32 Forge
+operations available without opening a target, missing-FLOSS isolation and
+same-connection recovery. Daily Codex activation remains pending. See
+[native enrichment](native-enrichment.md) for exact scope and configuration.
+
 ## Host execution admission, 2026-10-25
 
 The 21 current host target-execution/device-mutation operations are refused

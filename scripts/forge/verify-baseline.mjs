@@ -16,6 +16,7 @@ import { ZipWriter, Uint8ArrayWriter, TextReader } from "@zip.js/zip.js";
 import { Client } from "@modelcontextprotocol/client";
 import { StdioClientTransport } from "@modelcontextprotocol/client/stdio";
 import { parseEvidence } from "../../dist/domain/evidence.js";
+import { TOOL_CONTRACTS } from "../../dist/contracts/toolContracts.js";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
 const local = join(root, ".forge-local");
@@ -167,7 +168,12 @@ try {
     assert.ok(environment.REA_FORGE_STATIC_CONFIG);
     assert.ok(environment.REA_FORGE_DATA_ROOT);
     const expected = catalog.filter(({ name }) => name.startsWith("forge_"));
-    assert.equal(expected.length, 27);
+    assert.deepEqual(
+      expected.map(({ name }) => name).sort(),
+      TOOL_CONTRACTS.filter(({ kind }) => kind === "forge-static-provider")
+        .map(({ name }) => name)
+        .sort(),
+    );
     const groups = initialStatus.result.tool_availability.groups;
     for (const { name } of expected) {
       const observed = groups.find((group) => group.names.includes(name));
@@ -199,6 +205,27 @@ try {
         assert.notEqual(observed?.reason, "target_required");
       }
       report.checks.missing_java_does_not_disable_peer_families = true;
+      const withoutFloss = JSON.parse(
+        snapshot.toString("utf8").replace(/^\uFEFF/u, ""),
+      );
+      delete withoutFloss.floss;
+      await writeFile(
+        environment.REA_FORGE_STATIC_CONFIG,
+        JSON.stringify(withoutFloss),
+      );
+      const flossMissing = await call("binary_session", {});
+      for (const { name } of expected) {
+        const observed = flossMissing.result.tool_availability.groups.find(
+          (group) => group.names.includes(name),
+        );
+        assert.equal(
+          observed?.available,
+          name !== "forge_recover_strings",
+          name,
+        );
+        assert.notEqual(observed?.reason, "target_required");
+      }
+      report.checks.missing_floss_does_not_disable_capa_hashes_or_readback = true;
       await writeFile(environment.REA_FORGE_STATIC_CONFIG, "{");
       const malformed = await call("binary_session", {});
       for (const { name } of expected)

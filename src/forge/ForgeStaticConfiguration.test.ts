@@ -210,4 +210,38 @@ describe("explicit Forge static configuration", () => {
       ),
     ).rejects.toBeInstanceOf(AnalysisCancelledError);
   });
+  it("isolates enrichment engine presence and admits retained readback without an engine", async () => {
+    const input = await fixture();
+    const input_roots = input.document.editor010.input_roots;
+    const pin = { path: input.editor, sha256: "a".repeat(64) };
+    await writeFile(
+      input.configurationPath,
+      JSON.stringify({
+        ...input.document,
+        capa: { input_roots, version: "fixture", executable: pin },
+        floss: {
+          input_roots,
+          version: "fixture",
+          executable: { ...pin, path: join(input.root, "missing-floss.exe") },
+        },
+        api_hashes: { input_roots, version: "fixture", database: pin },
+        enrichment: { input_roots },
+      }),
+    );
+    for (const family of ["capa", "api_hashes", "enrichment"] as const)
+      expect(
+        await inspectForgeStaticConfiguration(
+          family,
+          input.environment,
+          owner(),
+        ),
+      ).toMatchObject({ status: "available" });
+    expect(
+      await inspectForgeStaticConfiguration(
+        "floss",
+        input.environment,
+        owner(),
+      ),
+    ).toMatchObject({ status: "unavailable" });
+  });
 });

@@ -17,6 +17,14 @@ const EXECUTION_WORDING =
   /\b(?:run|runs|running|launch|launches|launching|execute|executes|executing|execution|start|starts|install|installs|uninstall|uninstalls)\b/iu;
 
 const EXECUTION_WORDING_EXCEPTIONS: Readonly<Record<string, string>> = {
+  forge_analyze_capabilities:
+    "pinned static rule analysis, not target execution",
+  forge_recover_strings:
+    "trusted static emulation recovers strings without a target process",
+  forge_lookup_api_hash:
+    "reads a fixed SQLite database without custom SQL or target execution",
+  forge_read_enrichment_result:
+    "reads retained results without re-running an analysis engine",
   forge_inspect_dotnet: "reads metadata without target CLR execution",
   forge_decompile_dotnet:
     "decompiler renders metadata without executing target code",

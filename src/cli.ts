@@ -2,6 +2,7 @@ import { registerGpuCommands } from "./cli/gpuCommands.js";
 import { registerForgeBinaryEditorCommands } from "./cli/forgeBinaryEditorCommands.js";
 import { registerForgeJavaCommands } from "./cli/forgeJavaCommands.js";
 import { registerForgeDotnetCommands } from "./cli/forgeDotnetCommands.js";
+import { registerForgeNativeEnrichmentCommands } from "./cli/forgeNativeEnrichmentCommands.js";
 import { registerForgeCyberChefCommands } from "./cli/forgeCyberChefCommands.js";
 import { registerNativeFunctionMatchingCommands } from "./cli/nativeFunctionMatchingCommands.js";
 import { registerCaptureCommands } from "./cli/captureCommands.js";
@@ -133,6 +134,7 @@ export const createCli = (
   registerForgeBinaryEditorCommands(cli, logger, environment);
   registerForgeJavaCommands(cli, logger, environment);
   registerForgeDotnetCommands(cli, logger, environment);
+  registerForgeNativeEnrichmentCommands(cli, logger, environment);
   registerForgeCyberChefCommands(cli, logger, environment);
   registerReverseEngineeringCommands(cli, logger, environment);
   registerCutterCommands(cli, logger, environment);
