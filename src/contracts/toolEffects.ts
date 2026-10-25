@@ -53,6 +53,60 @@ const sessionEvidence = effects({ mutatesSession: true });
 
 /** Explicit effect audit for every public tool. */
 export const TOOL_EFFECTS: Readonly<Record<string, ToolEffects>> = {
+  forge_inspect_packet_tree: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_extract_packet_fields: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_pcap_statistics: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_follow_packet_stream: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_export_packet_objects: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_inspect_api_asset: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_compare_api_assets: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_export_api_asset: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_read_traffic_result: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
   forge_analyze_capabilities: effects({
     mutatesSession: true,
     writesFilesystem: true,

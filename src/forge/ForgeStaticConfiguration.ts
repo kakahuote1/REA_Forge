@@ -16,7 +16,10 @@ export type ForgeStaticFamily =
   | "capa"
   | "floss"
   | "api_hashes"
-  | "enrichment";
+  | "enrichment"
+  | "pcap"
+  | "api_documents"
+  | "traffic";
 export const FORGE_STATIC_CONFIG_SETTING = "REA_FORGE_STATIC_CONFIG";
 export const FORGE_DATA_ROOT_SETTING = "REA_FORGE_DATA_ROOT";
 const MAX_CONFIGURATION_BYTES = 64 * 1024;
@@ -160,6 +163,10 @@ export const inspectForgeStaticConfiguration = async (
       const pin = pinSchema.parse(
         value[family === "api_hashes" ? "database" : "executable"],
       );
+      await requirePath(pin.path);
+      z.string().min(1).parse(value.version);
+    } else if (family === "pcap") {
+      const pin = pinSchema.parse(value.tshark);
       await requirePath(pin.path);
       z.string().min(1).parse(value.version);
     } else if (family === "cyberchef") {

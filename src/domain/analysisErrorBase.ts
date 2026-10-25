@@ -260,9 +260,11 @@ import type { JavaReport } from "./forge/javaAnalysis.js";
 import type { DotnetReport } from "./forge/dotnetAnalysis.js";
 import type { CyberChefReport } from "./forge/cyberChef.js";
 import type { EnrichmentReport } from "./forge/nativeEnrichment.js";
+import type { TrafficReport } from "./forge/offlineTraffic.js";
 
 /** Provider-neutral evidence collected before a typed analysis failure. */
 export type AnalysisPartialObservation =
+  | TrafficReport
   | EnrichmentReport
   | CyberChefReport
   | JavaReport

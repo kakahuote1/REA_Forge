@@ -226,6 +226,29 @@ try {
         assert.notEqual(observed?.reason, "target_required");
       }
       report.checks.missing_floss_does_not_disable_capa_hashes_or_readback = true;
+      const withoutPcap = JSON.parse(
+        snapshot.toString("utf8").replace(/^\uFEFF/u, ""),
+      );
+      delete withoutPcap.pcap;
+      await writeFile(
+        environment.REA_FORGE_STATIC_CONFIG,
+        JSON.stringify(withoutPcap),
+      );
+      const pcapMissing = await call("binary_session", {});
+      const packetOperations = new Set([
+        "forge_inspect_packet_tree",
+        "forge_extract_packet_fields",
+        "forge_pcap_statistics",
+        "forge_follow_packet_stream",
+        "forge_export_packet_objects",
+      ]);
+      for (const { name } of expected) {
+        const observed = pcapMissing.result.tool_availability.groups.find(
+          (group) => group.names.includes(name),
+        );
+        assert.equal(observed?.available, !packetOperations.has(name), name);
+      }
+      report.checks.missing_tshark_preserves_api_documents_and_traffic_readback = true;
       await writeFile(environment.REA_FORGE_STATIC_CONFIG, "{");
       const malformed = await call("binary_session", {});
       for (const { name } of expected)

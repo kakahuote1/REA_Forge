@@ -1,5 +1,33 @@
 # Verified downstream scope
 
+## Offline traffic and API documents, 2026-10-25
+
+Nine added operations share the native CLI/MCP/Evidence path. The installed
+TShark/capinfos report 4.2.6, despite their enclosing folder label. Real offline
+checks cover protocol trees/paging, exact fields, statistics, directional stream
+bytes, HTTP object/body hashes, TLS 1.2 and TLS 1.3 early data with explicit
+keys, wrong/no-key isolation, native HAR/SAZ body recovery, and structural
+OpenAPI/Swagger/Postman inspection/comparison/export. No live capture, GUI,
+proxy change or endpoint request was involved.
+
+One negative test exposed Wiretap's implicit non-PCAP format guessing. The
+producing boundary now requires a PCAP/PCAPNG header. Passed engine artifacts
+and source hashes were verified and reused; only the affected negative and
+remaining tail were rerun. That tail passed in 51.078 seconds, including a real
+1 ms native deadline, cancellation/recovery, explicit whole-file scanning,
+shared-helper G08 readback/deadline checks, CLI parity and temporary cleanup.
+The new header check also accepts both selected public TLS container headers.
+
+The source group covers 155 unique passing cases; the test dependency type
+graph and production build passed. Targeted lint has no errors after splitting
+an oversized test group and retains 11 warnings. Current production startup
+passed in 26.249 seconds: 261 tools, 41 Forge operations, missing-TShark
+isolation and same-connection recovery. No daily Codex configuration was changed.
+CPU time and peak family memory were not measured in this group.
+
+This completes the G16 offline subset, not its pending guest Apipost CLI-suite
+migration or the whole delivery plan. See [offline scope](offline-traffic.md).
+
 ## Native enrichment, 2026-10-25
 
 Five target-free operations now share native CLI/MCP/Evidence: pinned capa

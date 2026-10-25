@@ -17,6 +17,10 @@ const EXECUTION_WORDING =
   /\b(?:run|runs|running|launch|launches|launching|execute|executes|executing|execution|start|starts|install|installs|uninstall|uninstalls)\b/iu;
 
 const EXECUTION_WORDING_EXCEPTIONS: Readonly<Record<string, string>> = {
+  forge_follow_packet_stream:
+    "offline stream reconstruction without sockets or target execution",
+  forge_inspect_api_asset: "reads exported documents without starting Apipost",
+  forge_compare_api_assets: "compares documents without application startup",
   forge_analyze_capabilities:
     "pinned static rule analysis, not target execution",
   forge_recover_strings:

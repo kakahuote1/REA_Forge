@@ -210,6 +210,9 @@ describe("explicit Forge static configuration", () => {
       ),
     ).rejects.toBeInstanceOf(AnalysisCancelledError);
   });
+});
+
+describe("independent native engine readiness", () => {
   it("isolates enrichment engine presence and admits retained readback without an engine", async () => {
     const input = await fixture();
     const input_roots = input.document.editor010.input_roots;
@@ -243,5 +246,36 @@ describe("explicit Forge static configuration", () => {
         owner(),
       ),
     ).toMatchObject({ status: "unavailable" });
+  });
+  it("keeps API documents and retained traffic ready when pinned TShark is missing", async () => {
+    const input = await fixture();
+    const input_roots = [input.inputs];
+    await writeFile(
+      input.configurationPath,
+      JSON.stringify({
+        ...input.document,
+        pcap: {
+          input_roots,
+          version: "fixture",
+          tshark: {
+            path: join(input.root, "missing-tshark.exe"),
+            sha256: "a".repeat(64),
+          },
+        },
+        api_documents: { input_roots },
+        traffic: { input_roots },
+      }),
+    );
+    expect(
+      await inspectForgeStaticConfiguration("pcap", input.environment, owner()),
+    ).toMatchObject({ status: "unavailable" });
+    for (const family of ["api_documents", "traffic"] as const)
+      expect(
+        await inspectForgeStaticConfiguration(
+          family,
+          input.environment,
+          owner(),
+        ),
+      ).toMatchObject({ status: "available" });
   });
 });

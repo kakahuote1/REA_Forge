@@ -23,3 +23,21 @@ CyberChef subset covers every upstream operation. IDA handles locating code
 and recovering custom semantics; guest debuggers handle runtime buffers when
 their dynamic path is configured. Retained Evidence, input/output digests,
 readback and limitations apply equally to CLI and MCP.
+
+For static capability candidates use `forge_analyze_capabilities` (capa),
+`forge_recover_strings` (FLOSS), and `forge_list_api_hash_types` /
+`forge_lookup_api_hash` (FLARE). Page retained output with
+`forge_read_enrichment_result`; rule/string/hash candidates need corroboration.
+
+For saved traffic, start with native `inspect_pcap_capture` or
+`inspect_web_network_capture` for HAR/SAZ. Use `forge_inspect_packet_tree`,
+`forge_extract_packet_fields`, `forge_pcap_statistics`,
+`forge_follow_packet_stream` and `forge_export_packet_objects` for offline
+detail. The default scans 2048 source frames; explicitly set `packet_limit: 0`
+for the whole file within fixed budgets. TLS keys must be explicitly selected.
+No live capture, profile edits or endpoint requests happen through these tools.
+
+For exported OpenAPI/Swagger/Postman JSON use `forge_inspect_api_asset`,
+`forge_compare_api_assets` or `forge_export_api_asset`. These inspect documents,
+not Apipost GUI projects or live API suites. Read saved pages/text/exact bytes
+with `forge_read_traffic_result` using the returned receipt digest.
