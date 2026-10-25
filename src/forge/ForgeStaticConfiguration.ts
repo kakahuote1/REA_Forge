@@ -38,7 +38,10 @@ export type ForgeStaticFamily =
   | "jadx_hap"
   | "hap_signing"
   | "hap_verification"
-  | "harmony_results";
+  | "harmony_results"
+  | "system_informer"
+  | "hollows_hunter"
+  | "system_results";
 export const FORGE_STATIC_CONFIG_SETTING = "REA_FORGE_STATIC_CONFIG";
 export const FORGE_DATA_ROOT_SETTING = "REA_FORGE_DATA_ROOT";
 const MAX_CONFIGURATION_BYTES = 64 * 1024;
@@ -185,7 +188,17 @@ export const inspectForgeStaticConfiguration = async (
       );
       await requirePath(pin.path);
       z.string().min(1).parse(value.version);
-    } else if (family === "harmony_packages" || family === "harmony_results") {
+    } else if (family === "system_informer" || family === "hollows_hunter") {
+      await requirePath(pinSchema.parse(value.executable).path);
+      z.string().min(1).parse(value.version);
+      z.string()
+        .regex(/^[a-f0-9]{40}$/u)
+        .parse(value.source_commit);
+    } else if (
+      family === "harmony_packages" ||
+      family === "harmony_results" ||
+      family === "system_results"
+    ) {
       z.string().min(1).parse(value.version);
     } else if (family === "ark_disasm") {
       await requirePath(pinSchema.parse(value.executable).path);

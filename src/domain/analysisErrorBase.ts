@@ -266,9 +266,11 @@ import type { AndroidBuildReport } from "./forge/androidBuild.js";
 import type { PeStaticReport } from "./forge/peStatic.js";
 import type { LdPlayerObservationReport } from "./forge/ldplayerObservation.js";
 import type { HarmonyStaticReport } from "./forge/harmonyStatic.js";
+import type { SystemObservationReport } from "./forge/systemObservation.js";
 
 /** Provider-neutral evidence collected before a typed analysis failure. */
 export type AnalysisPartialObservation =
+  | SystemObservationReport
   | HarmonyStaticReport
   | AndroidBuildReport
   | PeStaticReport

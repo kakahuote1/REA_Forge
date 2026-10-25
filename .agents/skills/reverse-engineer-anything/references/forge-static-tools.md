@@ -91,3 +91,16 @@ test identity is not deployable or trusted. Preserve receipt path/digest and
 use `forge_read_harmony_result` for facets, JSONL/text pages or raw artifact
 bytes. All of these are static; code reconstruction and signatures do not
 prove runtime behavior or benignness. See `docs/forge/harmony-static.md`.
+## Explicit live-process observations
+
+For process identity and system tables, use `forge_inspect_system`; select an
+exact PID first and preserve its `created_100ns` decimal string. Use
+`forge_observe_process` with that same identity for modules/threads/handles/
+regions/details/connections, or `forge_scan_process` for fixed no-dump Hollows
+Hunter/PE-sieve candidates. Do not pass an unqualified PID from an old receipt.
+Use `forge_read_system_result` for historical paging/export and
+`forge_compare_process_snapshots` for complete same-target snapshot changes.
+Queries are not atomic; driver-service status is not loaded-driver truth,
+connection tables are not capture, and scan negatives do not prove benignness.
+No target launch, driver, process control or memory dump occurs on this path.
+Dynamic changes remain on the selected guest/debugger chain.

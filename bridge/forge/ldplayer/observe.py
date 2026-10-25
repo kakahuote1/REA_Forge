@@ -1,8 +1,6 @@
 """Fixed LDPlayer list/physical/process observations; no guest/ADB/management writes."""
 from __future__ import annotations
 
-import ctypes
-from ctypes import wintypes
 import hashlib
 import json
 import os
@@ -13,6 +11,7 @@ import sys
 import xml.etree.ElementTree as xml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from common.process_identity import process_start
 from common.paths import CONFIG_PATH
 from common.static_files import identity, pinned, read_json, run_native
 
@@ -33,31 +32,6 @@ def physical(path: Path, *, directory: bool = False) -> dict:
     # Windows Python3.11 ctime is file creation;3.12+ supplies birthtime.
     born = getattr(state, "st_birthtime_ns", state.st_ctime_ns)
     return {"path": str(path), "device": str(state.st_dev), "fileId": str(state.st_ino), "creationNs": str(born)}
-
-
-def process_start(pid: int) -> str | None:
-    if pid <= 0:
-        return None
-    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
-    kernel.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
-    kernel.OpenProcess.restype = wintypes.HANDLE
-    kernel.GetProcessTimes.argtypes = [wintypes.HANDLE, *([ctypes.POINTER(wintypes.FILETIME)] * 4)]
-    kernel.GetProcessTimes.restype = wintypes.BOOL
-    kernel.CloseHandle.argtypes = [wintypes.HANDLE]
-    kernel.CloseHandle.restype = wintypes.BOOL
-    handle = kernel.OpenProcess(0x1000, False, pid)
-    if not handle:
-        return None  # Unreadable is unknown, not an assertion the process exited.
-    try:
-        created, exited, kernel_time, user_time = (wintypes.FILETIME() for _ in range(4))
-        if not kernel.GetProcessTimes(handle, ctypes.byref(created), ctypes.byref(exited), ctypes.byref(kernel_time), ctypes.byref(user_time)):
-            return None
-        if exited.dwHighDateTime or exited.dwLowDateTime:
-            return None
-        return str((created.dwHighDateTime << 32) | created.dwLowDateTime)
-    finally:
-        if not kernel.CloseHandle(handle):
-            raise OSError("LDPlayer observation could not close its query handle")
 
 
 def parse_row(line: str) -> dict:

@@ -350,6 +350,45 @@ describe("independent native engine readiness", () => {
       ),
     ).toMatchObject({ status: "unavailable", code: "not_configured" });
   });
+  it("keeps system readback independent of an absent scanner without launching either", async () => {
+    const input = await fixture();
+    const input_roots = [input.inputs];
+    const pin = { path: input.editor, sha256: "a".repeat(64) };
+    await writeFile(
+      input.configurationPath,
+      JSON.stringify({
+        ...input.document,
+        system_informer: {
+          input_roots,
+          version: "fixture",
+          source_commit: "a".repeat(40),
+          executable: pin,
+        },
+        hollows_hunter: {
+          input_roots,
+          version: "fixture",
+          source_commit: "b".repeat(40),
+          executable: { ...pin, path: join(input.root, "missing-scanner.exe") },
+        },
+        system_results: { input_roots, version: "fixture" },
+      }),
+    );
+    for (const family of ["system_informer", "system_results"] as const)
+      expect(
+        await inspectForgeStaticConfiguration(
+          family,
+          input.environment,
+          owner(),
+        ),
+      ).toMatchObject({ status: "available" });
+    expect(
+      await inspectForgeStaticConfiguration(
+        "hollows_hunter",
+        input.environment,
+        owner(),
+      ),
+    ).toMatchObject({ status: "unavailable" });
+  });
   it("isolates enrichment engine presence and admits retained readback without an engine", async () => {
     const input = await fixture();
     const input_roots = input.document.editor010.input_roots;

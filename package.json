@@ -66,6 +66,7 @@
     "bridge/forge/ldplayer",
     "bridge/forge/guest",
     "bridge/forge/harmony",
+    "bridge/forge/system",
     "bridge/native/NativeUIChildren.swift",
     "bridge/native/ReaNativeUI.swift",
     "bridge/native/rea_lldb_tracer.py",

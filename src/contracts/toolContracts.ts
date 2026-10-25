@@ -8,6 +8,7 @@ import { FORGE_PYTHON_TOOL_CONTRACTS } from "./forge/pythonBytecodeToolContracts
 import { FORGE_ANDROID_BUILD_TOOL_CONTRACTS } from "./forge/androidBuildToolContracts.js";
 import { FORGE_PE_TOOL_CONTRACTS } from "./forge/peStaticToolContracts.js";
 import { FORGE_HARMONY_TOOL_CONTRACTS } from "./forge/harmonyStaticToolContracts.js";
+import { FORGE_SYSTEM_TOOL_CONTRACTS } from "./forge/systemObservationToolContracts.js";
 import { FORGE_CYBERCHEF_TOOL_CONTRACTS } from "./forge/cyberChefToolContracts.js";
 import { CAPTURE_TOOL_CONTRACTS } from "./captures/captureToolContracts.js";
 import { SIGNAL_TOOL_CONTRACTS } from "./signals/signalToolContracts.js";
@@ -106,6 +107,7 @@ export const TOOL_CONTRACTS = [
   ...FORGE_ANDROID_BUILD_TOOL_CONTRACTS,
   ...FORGE_PE_TOOL_CONTRACTS,
   ...FORGE_HARMONY_TOOL_CONTRACTS,
+  ...FORGE_SYSTEM_TOOL_CONTRACTS,
   ...FORGE_CYBERCHEF_TOOL_CONTRACTS,
 ] as const;
 

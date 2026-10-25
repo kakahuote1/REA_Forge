@@ -8,6 +8,7 @@ import { registerForgePythonBytecodeCommands } from "./cli/forgePythonBytecodeCo
 import { registerForgeAndroidBuildCommands } from "./cli/forgeAndroidBuildCommands.js";
 import { registerForgePeStaticCommands } from "./cli/forgePeStaticCommands.js";
 import { registerForgeHarmonyStaticCommands } from "./cli/forgeHarmonyStaticCommands.js";
+import { registerForgeSystemObservationCommands } from "./cli/forgeSystemObservationCommands.js";
 import { registerForgeCyberChefCommands } from "./cli/forgeCyberChefCommands.js";
 import { registerNativeFunctionMatchingCommands } from "./cli/nativeFunctionMatchingCommands.js";
 import { registerCaptureCommands } from "./cli/captureCommands.js";
@@ -145,6 +146,7 @@ export const createCli = (
   registerForgeAndroidBuildCommands(cli, logger, environment);
   registerForgePeStaticCommands(cli, logger, environment);
   registerForgeHarmonyStaticCommands(cli, logger, environment);
+  registerForgeSystemObservationCommands(cli, logger, environment);
   registerForgeCyberChefCommands(cli, logger, environment);
   registerReverseEngineeringCommands(cli, logger, environment);
   registerCutterCommands(cli, logger, environment);

@@ -1,5 +1,26 @@
 # Verified downstream scope
 
+## System observations, 2026-10-25
+
+Five native operations passed against a source-owned verifier process. The
+existing pinned System Informer phlib helper supplied eleven observed table
+families; connections were explicitly labelled IP Helper table reads. Exact
+creation stamps remained decimal strings through CLI/MCP. Query-only handles
+spanned observations, stale/exited identities failed, and a real owned memory
+allocation produced changed region metadata in retained snapshot comparison.
+
+Fixed no-dump Hollows Hunter/embedded PE-sieve scanned one verifier process;
+scanned1/failed0/suspicious0 is an observation, not proof of benignness. Actual
+native expiry for both engines, cancellation/recovery, missing-engine isolation,
+historical paging/CLI parity and owned request cleanup passed. No user process
+was scanned or terminated, and no GUI, driver or privilege adjustment was used.
+
+The main workflow took9.850seconds; affected tails3.315/2.261seconds reused
+digest-checked outputs. Source163unique checks and type validation passed;
+build20.703seconds, lint no errors/one standard parameter warning. CPU/peak
+family memory were not measured. Catalog290/Forge70 does not establish daily
+client activation; guest debugging and human GUI delivery remain separate.
+
 ## PE/UPX host subset, 2026-10-25
 
 Five added operations reuse audited pure PE/dependency parsers and fixed UPX

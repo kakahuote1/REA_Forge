@@ -17,6 +17,10 @@ const EXECUTION_WORDING =
   /\b(?:run|runs|running|launch|launches|launching|execute|executes|executing|execution|start|starts|install|installs|uninstall|uninstalls)\b/iu;
 
 const EXECUTION_WORDING_EXCEPTIONS: Readonly<Record<string, string>> = {
+  forge_inspect_system:
+    "query-only phlib helper, no target launch or driver startup",
+  forge_scan_process:
+    "fixed read-only no-dump scanner, no target launch or injection",
   forge_inspect_hap: "trusted ZIP/metadata inspection, not target execution",
   forge_inspect_abc: "trusted static bytecode/index readers, not ABC execution",
   forge_disassemble_ark: "official static disassembler, not a target VM",
