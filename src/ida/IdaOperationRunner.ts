@@ -41,6 +41,7 @@ import {
   legacyXrefsSchema,
   modernCalleesSchema,
   modernDecompileSchema,
+  modernSingleDecompileSchema,
   modernDisassemblySchema,
   modernLookupSchema,
   modernLookupBatchSchema,
@@ -413,6 +414,36 @@ export class IdaOperationRunner {
       );
       return page.pseudocode;
     }
+    const properties = this.connection.toolInputProperties?.("decompile");
+    if (
+      properties !== undefined &&
+      !properties.has("offset") &&
+      !properties.has("max_lines")
+    ) {
+      const page = modernSingleDecompileSchema.parse(
+        await this.call("decompile", { addr: fn.address }),
+      );
+      if (page.addr !== fn.address)
+        throw new AnalysisProtocolError(
+          "IDA pseudocode identifies a different function than the resolved entry.",
+        );
+      if (page.code === null || page.error !== undefined)
+        throw new AnalysisProtocolError(
+          `IDA decompilation failed: ${page.error ?? "missing code"}`,
+        );
+      if (page.cursor !== undefined && nextOffset(page.cursor, 0) !== null)
+        throw new AnalysisProtocolError(
+          "IDA returned another pseudocode page but advertises no pagination parameters.",
+        );
+      return page.code;
+    }
+    if (
+      properties !== undefined &&
+      (!properties.has("offset") || !properties.has("max_lines"))
+    )
+      throw new AnalysisProtocolError(
+        "IDA advertises an unsupported partial pseudocode pagination schema.",
+      );
     const result: string[] = [];
     let offset: number | null = 0;
     while (offset !== null) {

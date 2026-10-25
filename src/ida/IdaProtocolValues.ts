@@ -129,6 +129,10 @@ export const modernDecompileSchema = z.object({
   line_count: z.int().nonnegative().optional(),
   total_lines: z.int().nonnegative().optional(),
 });
+export const modernSingleDecompileSchema = modernDecompileSchema.extend({
+  addr: idaAddressSchema,
+  cursor: cursorSchema.optional(),
+});
 
 export const legacyStringSchema = z.object({
   address: idaAddressSchema,

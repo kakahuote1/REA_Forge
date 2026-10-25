@@ -20,6 +20,8 @@ import { createForgeHarmonyStaticService } from "../composition/forgeHarmonyStat
 import { registerForgeHarmonyStaticTools } from "./registerForgeHarmonyStaticTools.js";
 import { createForgeSystemObservationService } from "../composition/forgeSystemObservation.js";
 import { registerForgeSystemObservationTools } from "./registerForgeSystemObservationTools.js";
+import { createForgeIdaStaticService } from "../composition/forgeIdaStatic.js";
+import { registerForgeIdaStaticTools } from "./registerForgeIdaStaticTools.js";
 import { registerForgeDotnetTools } from "./registerForgeDotnetTools.js";
 import { createForgeCyberChefService } from "../composition/forgeCyberChef.js";
 import { registerForgeCyberChefTools } from "./registerForgeCyberChefTools.js";
@@ -479,6 +481,7 @@ export const createServer = (
   const forgeHarmonyStatic = createForgeHarmonyStaticService(environment);
   const forgeSystemObservation =
     createForgeSystemObservationService(environment);
+  const forgeIdaStatic = createForgeIdaStaticService(environment);
   const forgeCyberChef = createForgeCyberChefService(environment);
   const packetCapture =
     options.packetCapture ?? createPacketCaptureService(environment);
@@ -512,6 +515,7 @@ export const createServer = (
       forgePeStatic.close(),
       forgeHarmonyStatic.close(),
       forgeSystemObservation.close(),
+      forgeIdaStatic.close(),
       forgeCyberChef.close(),
       packetCapture.close(),
       signalRecording.close(),
@@ -798,6 +802,13 @@ export const createServer = (
     recordEvidence,
     analysisAdmission,
   );
+  registerForgeIdaStaticTools(
+    server,
+    forgeIdaStatic,
+    toolLogger,
+    recordEvidence,
+    analysisAdmission,
+  );
   registerForgePeStaticTools(
     server,
     forgePeStatic,
@@ -877,6 +888,7 @@ export const createServer = (
           peStatic,
           harmonyStatic,
           systemObservation,
+          idaStatic,
         ] = await Promise.all([
           forgeBinaryEditor.inspectAvailability(signal),
           forgeJava.inspectAvailability(signal),
@@ -889,6 +901,7 @@ export const createServer = (
           forgePeStatic.inspectAvailability(signal),
           forgeHarmonyStatic.inspectAvailability(signal),
           forgeSystemObservation.inspectAvailability(signal),
+          forgeIdaStatic.inspectAvailability(signal),
         ]);
         return Object.fromEntries([
           ...Object.entries(enrichment),
@@ -898,6 +911,7 @@ export const createServer = (
           ...Object.entries(peStatic),
           ...Object.entries(harmonyStatic),
           ...Object.entries(systemObservation),
+          ...Object.entries(idaStatic),
           ...FORGE_BINARY_EDITOR_TOOL_CONTRACTS.map(({ name }) => [
             name,
             editor,

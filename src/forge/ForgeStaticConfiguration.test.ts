@@ -350,6 +350,51 @@ describe("independent native engine readiness", () => {
       ),
     ).toMatchObject({ status: "unavailable", code: "not_configured" });
   });
+  it("keeps IDA retained results and pure exchange independent of missing IDALib", async () => {
+    const input = await fixture();
+    const input_roots = [input.inputs];
+    const pin = { path: input.editor, sha256: "a".repeat(64) };
+    await writeFile(
+      input.configurationPath,
+      JSON.stringify({
+        ...input.document,
+        ida_host: {
+          input_roots,
+          version: "fixture",
+          install_root: input.inputs,
+          api_source_root: input.inputs,
+          api_source_tree_sha256: "a".repeat(64),
+          python: pin,
+          idalib: { ...pin, path: join(input.root, "missing-idalib.dll") },
+          idapro_entry: pin,
+          idapro_config: pin,
+          approved_plugins: [pin],
+        },
+        ida_exchange: {
+          input_roots,
+          version: "fixture",
+          api_source_root: input.inputs,
+          api_source_tree_sha256: "a".repeat(64),
+        },
+        ida_results: { input_roots, version: "fixture" },
+      }),
+    );
+    for (const family of ["ida_results", "ida_exchange"] as const)
+      expect(
+        await inspectForgeStaticConfiguration(
+          family,
+          input.environment,
+          owner(),
+        ),
+      ).toMatchObject({ status: "available" });
+    expect(
+      await inspectForgeStaticConfiguration(
+        "ida_host",
+        input.environment,
+        owner(),
+      ),
+    ).toMatchObject({ status: "unavailable" });
+  });
   it("keeps system readback independent of an absent scanner without launching either", async () => {
     const input = await fixture();
     const input_roots = [input.inputs];

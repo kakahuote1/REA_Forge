@@ -1,5 +1,29 @@
 # Verified downstream scope
 
+## IDA host static analysis, 2026-10-25
+
+Eleven work-IDB operations and REA's unchanged read-only provider semantics
+passed against two known-source harmless PE fixtures. Actual IDALib9.1 saved
+and reopened annotations/types, byte and assembly patches, complete-copy
+restores, enum/structure assistance and bounded Python writes. Three Keystone
+encodings, a known AES/YARA candidate, separately verified name/byte differences,
+retained export/CLI parity and native function analysis passed. The native
+reader now selects paged or single-reply decompilation from advertised schemas.
+
+Private profiles exclude unapproved flat and descriptor-based plugins without
+changing the installation. Explicitly pinned DWARF/EH/core support dependencies
+are not debugger-backend authority. Module observations are not a trace of all
+past execution or an operating-system/network sandbox. No licensing state,
+original binary or human GUI database was modified or target executed.
+
+The final tail took16.884seconds for34checks, reusing digest-verified outputs
+from the46.272second main chain. Actual native expiry, cancellation/recovery,
+missing-engine isolation and owned cleanup passed. Source292unique checks,
+type validation and a23.531second production build passed; lint had no errors
+and retained scoped style/complexity warnings. CPU/peak memory were unmeasured.
+Catalog301/Forge81 is not proof of current Codex activation. Guest dynamic
+debugging, human workbench migration and retirement remain separate.
+
 ## System observations, 2026-10-25
 
 Five native operations passed against a source-owned verifier process. The

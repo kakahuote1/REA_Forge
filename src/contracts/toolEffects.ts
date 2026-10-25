@@ -53,6 +53,70 @@ const sessionEvidence = effects({ mutatesSession: true });
 
 /** Explicit effect audit for every public tool. */
 export const TOOL_EFFECTS: Readonly<Record<string, ToolEffects>> = {
+  forge_edit_ida_database: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_run_ida_safe_python: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_scan_ida_crypto: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_ida_enum: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_ida_struct_typer: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_snapshot_ida_database: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_export_ida_data: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_assemble_ida: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_compare_ida_snapshots: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+  }),
+  forge_restore_ida_database: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+    idempotent: false,
+  }),
+  forge_read_ida_result: effects({
+    mutatesSession: true,
+    writesFilesystem: true,
+    launchesProcess: true,
+  }),
   forge_inspect_system: effects({
     mutatesSession: true,
     writesFilesystem: true,

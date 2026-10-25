@@ -215,6 +215,48 @@ const mockedHttpBoundary = ({
   );
 };
 
+it("retains advertised input properties without guessing missing schemas", async () => {
+  mockedHttpBoundary({
+    serverName: "ida-schema-fixture",
+    tools: [
+      {
+        name: "decompile",
+        inputSchema: {
+          type: "object",
+          properties: {
+            addr: { type: "string" },
+            include_addresses: { type: "boolean" },
+          },
+        },
+      },
+      { name: "server_health", inputSchema: { type: "object" } },
+    ],
+    call: () => {
+      throw new Error("schema discovery must not invoke a tool");
+    },
+  });
+  const connection = createIdaMcpConnection(
+    {
+      url: "http://127.0.0.1:12345/mcp",
+      headers: {},
+      mode: "headless",
+      timeoutMs: 1000,
+    },
+    {},
+  );
+  try {
+    await connection.connect();
+    expect([...connection.toolInputProperties!("decompile")!]).toEqual([
+      "addr",
+      "include_addresses",
+    ]);
+    expect(connection.toolInputProperties!("server_health")).toBeUndefined();
+    expect(connection.toolInputProperties!("unknown")).toBeUndefined();
+  } finally {
+    await connection.close();
+  }
+});
+
 it("preserves the SDK request timeout as a typed IDA timeout", async () => {
   const timeoutMs = 1000;
   const requestTimeoutMs = 40;

@@ -104,3 +104,18 @@ Queries are not atomic; driver-service status is not loaded-driver truth,
 connection tables are not capture, and scan negatives do not prove benignness.
 No target launch, driver, process control or memory dump occurs on this path.
 Dynamic changes remain on the selected guest/debugger chain.
+## IDA work-IDB edits and analysis extensions
+
+Use the native `ida` provider for ordinary static questions. For a deliberate
+new work-IDB artifact use `forge_edit_ida_database`, or
+`forge_run_ida_safe_python` for bounded JSON/db batches. Preserve the returned
+database and before-snapshot identities. `forge_restore_ida_database` derives
+a restored copy only after authenticating the current expected digest.
+Use `forge_scan_ida_crypto` for FindCrypt3/YARA candidates;
+`forge_ida_enum`/`forge_ida_struct_typer` preview unless explicit selections are
+provided. Use `forge_snapshot_ida_database` and
+`forge_compare_ida_snapshots` for the bounded exchange matcher,
+`forge_export_ida_data` for literals, `forge_assemble_ida` for encoding, and
+`forge_read_ida_result` for retained readback. These are not original plugin or
+raw IDAPython entry points. Raw code, target launch and debugging use the
+selected guest chain, never an attempted host-facade bypass.

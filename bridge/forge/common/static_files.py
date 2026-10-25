@@ -52,6 +52,29 @@ def reject_nonfinite(_value: str) -> None:
 
 def read_json(path: Path, maximum: int = MAX_RESULT) -> dict:
     selected = bounded_file(path, maximum)
+    return _read_json(selected, maximum)
+
+
+def read_operator_configuration() -> dict:
+    """Read only the operator-selected configuration, never a target path.
+
+    PRIVATE_ROOT/config is protected against target/artifact operations. Its
+    explicit owner must still be able to read it; actual Codex/OS roots remain
+    protected. This does not grant a write or caller-selected exemption.
+    """
+    from .paths import CONFIG_PATH
+    policy = HardDenyPolicy(codex_roots=(Path.home() / ".codex",))
+    policy.require_local_path(CONFIG_PATH)
+    if not CONFIG_PATH.is_absolute() or CONFIG_PATH.is_symlink():
+        raise ValueError("operator configuration must be an absolute regular file")
+    selected = CONFIG_PATH.resolve(strict=True)
+    policy.require_local_path(selected)
+    if not selected.is_file() or selected.stat().st_size > 65536:
+        raise ValueError("operator configuration exceeds its regular-file bound")
+    return _read_json(selected, 65536)
+
+
+def _read_json(selected: Path, maximum: int) -> dict:
     with selected.open("rb") as stream:
         data = stream.read(maximum + 1)
     if len(data) > maximum:

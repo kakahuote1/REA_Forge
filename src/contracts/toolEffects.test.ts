@@ -17,6 +17,13 @@ const EXECUTION_WORDING =
   /\b(?:run|runs|running|launch|launches|launching|execute|executes|executing|execution|start|starts|install|installs|uninstall|uninstalls)\b/iu;
 
 const EXECUTION_WORDING_EXCEPTIONS: Readonly<Record<string, string>> = {
+  forge_run_ida_safe_python:
+    "bounded work-IDB facade, not raw scripts or target execution",
+  forge_scan_ida_crypto: "fixed mapped-IDB rule scanner, not target execution",
+  forge_snapshot_ida_database:
+    "static exchange-format producer, not target execution",
+  forge_assemble_ida: "fixed assembler emits bytes but does not execute them",
+  forge_read_ida_result: "retained byte reader does not launch IDA",
   forge_inspect_system:
     "query-only phlib helper, no target launch or driver startup",
   forge_scan_process:

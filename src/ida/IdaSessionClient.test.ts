@@ -78,6 +78,70 @@ const fixture = async (
 };
 
 describe("headless IDA producer pagination", () => {
+  it("rejects a partially advertised pagination protocol before invoking decompile", async () => {
+    const { producer, client } = await fixture("headless");
+    Object.assign(producer, {
+      toolInputProperties: () => new Set(["addr", "offset"]),
+    });
+    try {
+      expect(
+        (await client.execute("procedure_pseudo_code", { procedure: "main" }))
+          .ok,
+      ).toBe(false);
+      expect(producer.calls.some(({ name }) => name === "decompile")).toBe(
+        false,
+      );
+    } finally {
+      await client.close();
+    }
+  });
+  it.each([
+    {
+      name: "complete single reply",
+      reply: { addr: "0x1000", code: "int main() { return 7; }" },
+      accepted: true,
+    },
+    {
+      name: "wrong function",
+      reply: { addr: "0x2000", code: "wrong" },
+      accepted: false,
+    },
+    {
+      name: "unreadable continuation",
+      reply: { addr: "0x1000", code: "partial", cursor: { next: 100 } },
+      accepted: false,
+    },
+  ])(
+    "uses the advertised unpaged schema: $name",
+    async ({ reply, accepted }) => {
+      const { producer, client } = await fixture("headless");
+      Object.assign(producer, {
+        toolInputProperties: (name: string) =>
+          name === "decompile"
+            ? new Set(["addr", "include_addresses"])
+            : undefined,
+      });
+      producer.overrideCall = (name) =>
+        name === "decompile" ? reply : undefined;
+      try {
+        const result = await client.execute("procedure_pseudo_code", {
+          procedure: "main",
+        });
+        expect(result.ok).toBe(accepted);
+        expect(
+          producer.calls.filter(({ name }) => name === "decompile"),
+        ).toEqual([
+          {
+            name: "decompile",
+            args: { addr: "0x1000", database: producer.database },
+          },
+        ]);
+      } finally {
+        expect((await client.close()).ok).toBe(true);
+      }
+    },
+  );
+
   it("follows reported cursors for modern inventories, pseudocode, and bare-hex assembly without losing pages", async () => {
     const { producer, client } = await fixture("headless");
     producer.overrideCall = (name, args) => {

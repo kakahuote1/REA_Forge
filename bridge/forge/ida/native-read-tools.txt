@@ -1,0 +1,12 @@
+# REA's upstream read-only IDA provider. Worker management remains supervisor-owned.
+server_health
+list_funcs
+lookup_funcs
+find_regex
+decompile
+disasm
+callees
+xrefs_to
+callgraph
+survey_binary
+get_bytes

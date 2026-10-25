@@ -41,7 +41,11 @@ export type ForgeStaticFamily =
   | "harmony_results"
   | "system_informer"
   | "hollows_hunter"
-  | "system_results";
+  | "system_results"
+  | "ida_host"
+  | "ida_assembly"
+  | "ida_exchange"
+  | "ida_results";
 export const FORGE_STATIC_CONFIG_SETTING = "REA_FORGE_STATIC_CONFIG";
 export const FORGE_DATA_ROOT_SETTING = "REA_FORGE_DATA_ROOT";
 const MAX_CONFIGURATION_BYTES = 64 * 1024;
@@ -187,6 +191,36 @@ export const inspectForgeStaticConfiguration = async (
         value[family === "api_hashes" ? "database" : "executable"],
       );
       await requirePath(pin.path);
+      z.string().min(1).parse(value.version);
+    } else if (family === "ida_host") {
+      await Promise.all(
+        ["python", "idalib", "idapro_entry", "idapro_config"].map(
+          async (name) => requirePath(pinSchema.parse(value[name]).path),
+        ),
+      );
+      await requirePath(absolutePath.parse(value.install_root), true);
+      await requirePath(absolutePath.parse(value.api_source_root), true);
+      z.string()
+        .regex(/^[a-f0-9]{64}$/u)
+        .parse(value.api_source_tree_sha256);
+      await Promise.all(
+        z
+          .array(pinSchema)
+          .min(1)
+          .max(8)
+          .parse(value.approved_plugins)
+          .map(async (pin) => requirePath(pin.path)),
+      );
+      z.string().min(1).parse(value.version);
+    } else if (family === "ida_assembly" || family === "ida_exchange") {
+      if (family === "ida_assembly")
+        await requirePath(pinSchema.parse(value.python).path);
+      await requirePath(absolutePath.parse(value.api_source_root), true);
+      z.string()
+        .regex(/^[a-f0-9]{64}$/u)
+        .parse(value.api_source_tree_sha256);
+      z.string().min(1).parse(value.version);
+    } else if (family === "ida_results") {
       z.string().min(1).parse(value.version);
     } else if (family === "system_informer" || family === "hollows_hunter") {
       await requirePath(pinSchema.parse(value.executable).path);

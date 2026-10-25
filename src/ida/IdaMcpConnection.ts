@@ -35,6 +35,8 @@ import { ProviderAdapterError } from "../domain/providerAdapterError.js";
 /** Injectable MCP boundary used by the provider and transport conformance tests. */
 export interface IdaMcpConnection {
   connect(): Promise<readonly string[]>;
+  /** Properties actually advertised by this connection's tools/list reply. */
+  toolInputProperties?(name: string): ReadonlySet<string> | undefined;
   call(
     name: string,
     args: Readonly<Record<string, JsonValue>>,
@@ -350,6 +352,7 @@ export const createIdaMcpConnection = (
   )(config);
   let stderr = Buffer.alloc(0);
   let stderrBytes = 0;
+  const inputProperties = new Map<string, ReadonlySet<string>>();
   const transportFailure = (
     cause: unknown,
     operation = "ida_mcp_response",
@@ -466,7 +469,18 @@ export const createIdaMcpConnection = (
           timeout: config.timeoutMs,
         })
         .catch((cause: unknown) => transportFailure(cause, "ida_mcp_catalog"));
+      inputProperties.clear();
+      for (const tool of catalog.tools) {
+        const properties = z
+          .record(z.string(), z.unknown())
+          .safeParse(tool.inputSchema.properties);
+        if (properties.success)
+          inputProperties.set(tool.name, new Set(Object.keys(properties.data)));
+      }
       return catalog.tools.map(({ name }) => name);
+    },
+    toolInputProperties(name) {
+      return inputProperties.get(name);
     },
     async call(name, args, options) {
       const requestTimeoutMs = Math.min(
