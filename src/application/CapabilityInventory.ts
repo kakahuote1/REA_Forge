@@ -38,6 +38,7 @@ import {
   NO_CLIENT_FEATURES,
 } from "./CapabilityClientRequirements.js";
 import { compareUnicodeCodePoints } from "../domain/unicodeCodePointOrder.js";
+import { hostExecutionRefusal } from "./ExecutionDomainAdmission.js";
 
 const statusSchema = z.object({
   open: z.boolean(),
@@ -52,6 +53,7 @@ type ToolAvailabilityReason = "available" | ToolUnavailabilityReason;
 
 type ProviderDescriptor = ProviderCapability;
 export type AvailabilityPolicy = {
+  readonly hostStaticExecution?: boolean;
   readonly forgeStaticAvailability?: Readonly<
     Record<string, ProviderAvailability>
   >;
@@ -273,6 +275,17 @@ export const buildCapabilityInventory = (
         open_world: contract.annotations.openWorldHint ?? true,
       },
     };
+    const domainRefusal =
+      policy.hostStaticExecution === true
+        ? hostExecutionRefusal(contract.name)
+        : undefined;
+    if (domainRefusal !== undefined)
+      return {
+        ...facts,
+        available: false,
+        reason: "execution_domain_required",
+        remediation: domainRefusal.remediationAction ?? domainRefusal.reason,
+      };
     if (clientBlocked)
       return {
         ...facts,

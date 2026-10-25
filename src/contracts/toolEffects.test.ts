@@ -32,10 +32,6 @@ const EXECUTION_WORDING_EXCEPTIONS: Readonly<Record<string, string>> = {
     "compilation disables annotation processing and never runs compiled classes",
   inspect_with_objdump:
     "runs a caller-selected inspection tool, not target code",
-  start_gdb_session:
-    "starts a debugger session; execution is attributed to gdb_console",
-  start_frida_session:
-    "spawned targets remain suspended until resume_frida_session",
   inspect_native_load_image: "states that it does not execute the target",
   resolve_native_call_targets: "states that it does not execute code",
   inspect_byte_entropy: "states that it profiles the file without execution",
@@ -179,6 +175,8 @@ describe("tool effects", () => {
       "rizin_debug_command",
       "start_adb_activity",
       "start_adb_app",
+      "start_frida_session",
+      "start_gdb_session",
       "start_rizin_debug_session",
       "stop_adb_app",
       "uninstall_adb_package",

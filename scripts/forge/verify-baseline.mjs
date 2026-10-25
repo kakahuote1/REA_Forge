@@ -120,7 +120,48 @@ try {
     assert.equal(typeof text, "string");
     return JSON.parse(text);
   };
+  const refusedHostOperations = [
+    {
+      name: "gdb_console",
+      input: {
+        session_id: "00000000-0000-4000-8000-000000000001",
+        command: "show version",
+      },
+    },
+    { name: "execute_rizin_command", input: { path: fixture, command: "i" } },
+    {
+      name: "start_frida_session",
+      input: {
+        mode: "spawn",
+        device_id: "__forge_absent_test_device__",
+        program: "__forge_absent_test_program__",
+      },
+    },
+  ];
+  for (const operation of refusedHostOperations) {
+    const definition = catalog.find(({ name }) => name === operation.name);
+    assert.ok(definition);
+    const refused = await client.callTool(
+      { name: operation.name, arguments: operation.input },
+      { timeout: 20_000, toolDefinition: definition },
+    );
+    assert.equal(refused.isError, true);
+    const diagnostic = JSON.parse(
+      refused.content.find((item) => item.type === "text")?.text ?? "null",
+    );
+    assert.equal(diagnostic.error?.code, "capability_unavailable");
+    assert.equal(diagnostic.error?.details?.provider_id, "forge-host-static");
+  }
+  report.checks.host_runtime_refusal_after_lazy_materialization = true;
   const initialStatus = await call("binary_session", {});
+  for (const { name } of refusedHostOperations) {
+    const availability = initialStatus.result.tool_availability.groups.find(
+      (group) => group.names.includes(name),
+    );
+    assert.equal(availability?.available, false);
+    assert.equal(availability?.reason, "execution_domain_required");
+  }
+  report.checks.host_execution_domain_reported_without_hiding_tools = true;
   report.checks.target_free_session_status = true;
   if (requireForgeReadiness) {
     assert.ok(environment.REA_FORGE_STATIC_CONFIG);

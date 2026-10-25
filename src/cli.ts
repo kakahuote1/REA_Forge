@@ -29,7 +29,7 @@ import { normalizeCliArguments } from "./cliOutput.js";
 import { createLogger, parseLogLevel } from "./logger.js";
 import { projectAnalysisError } from "./domain/analysisErrorProjection.js";
 import { PRODUCT_IDENTITY } from "./identity.js";
-import { npxRegistrationCommand } from "./application/ClientRegistrationIdentity.js";
+import { forgeLocalCommand } from "./application/ForgeLocalLaunch.js";
 import { registerSetupCommands } from "./cli/setupCommands.js";
 import { registerCoreAnalysisCommands } from "./cli/coreAnalysisCommands.js";
 import { registerUtilityCommands } from "./cli/utilityCommands.js";
@@ -66,6 +66,7 @@ import {
 import { registerReverseEngineeringCommands } from "./cli/reverseEngineeringCommands.js";
 import { registerCutterCommands } from "./cli/cutterCommands.js";
 import { excludeDeclaredSensitiveArguments } from "./cli/explicitSensitiveArguments.js";
+import { applyHostExecutionAdmission } from "./cli/cliExecutionAdmission.js";
 
 export { closeCliJavaScriptResources } from "./cli/javascriptApplicationAnalysis.js";
 
@@ -110,7 +111,9 @@ export const createCli = (
     version: PRODUCT_IDENTITY.packageVersion,
     description: "Reverse engineer anything from your terminal or agent.",
     mcp: {
-      command: npxRegistrationCommand().join(" "),
+      command: forgeLocalCommand(["mcp"])
+        .map((argument) => `"${argument}"`)
+        .join(" "),
       instructions:
         "Ask what software, artifact, protocol, or behavior the user wants to understand, then choose the available investigation capabilities that can produce evidence.",
     },
@@ -182,6 +185,7 @@ export const createCli = (
   registerElectronCommands(cli, logger, environment);
   registerJavaScriptRuntimeObservationCommands(cli, logger, environment);
   registerApplicationCommands(cli, logger);
+  applyHostExecutionAdmission(cli);
   presentOmittableDefaults(cli);
   if (resultOutput !== undefined) streamCliCommandResults(cli, resultOutput);
   const serveDeclared = excludeDeclaredSensitiveArguments(cli);

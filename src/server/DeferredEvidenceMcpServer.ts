@@ -237,7 +237,7 @@ export class DeferredEvidenceMcpServer extends EvidenceMcpServerCore {
               binding.output,
             ),
           }),
-      callback: guarded,
+      callback: this.protectToolCallback(name, config.inputSchema, guarded),
     });
     this.tools.delete(name);
     return binding.registered;

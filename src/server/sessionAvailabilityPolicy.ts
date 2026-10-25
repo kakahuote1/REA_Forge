@@ -68,6 +68,7 @@ export const sessionAvailabilityPolicy = (
     }));
   return () => ({
     ...policy(),
+    hostStaticExecution: true,
     ...(defaults.optionalProviderLoadFailures === undefined
       ? {}
       : {

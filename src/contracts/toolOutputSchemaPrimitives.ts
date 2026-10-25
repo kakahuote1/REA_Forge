@@ -378,6 +378,7 @@ export const toolUnavailabilityReason = z.enum([
   "provider_unavailable",
   "target_unsupported",
   "unsupported_host",
+  "execution_domain_required",
 ]);
 
 export const toolAvailability = z.discriminatedUnion("available", [

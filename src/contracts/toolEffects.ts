@@ -226,6 +226,7 @@ export const TOOL_EFFECTS: Readonly<Record<string, ToolEffects>> = {
   start_gdb_session: effects({
     launchesProcess: true,
     mutatesSession: true,
+    executesForeignCode: true,
     idempotent: false,
   }),
   gdb_console: effects({
@@ -368,6 +369,7 @@ export const TOOL_EFFECTS: Readonly<Record<string, ToolEffects>> = {
     mutatesSession: true,
     launchesProcess: true,
     accessesNetwork: true,
+    executesForeignCode: true,
     idempotent: false,
   }),
   load_frida_script: effects({

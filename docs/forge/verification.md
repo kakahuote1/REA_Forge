@@ -1,5 +1,22 @@
 # Verified downstream scope
 
+## Host execution admission, 2026-10-25
+
+The 21 current host target-execution/device-mutation operations are refused
+before dispatch through the shared application rule. CLI reuses canonical aliases;
+MCP retains the rule when the SDK replaces deferred callbacks. The same producing
+wrapper also preserves request tracking. Session discovery reports
+`execution_domain_required`, while static helpers and owned cleanup remain usable.
+
+The complete affected group finished with 54 passing cases after scoped repairs.
+Actual CLI aliases and fake guest-environment claims were covered. A current
+production stdio run passed safe representative refusals, lazy materialization,
+static discovery/recovery, isolated setup dry-run and archive parity in 5.052
+seconds. Typechecking, the final build and eight module boundaries passed;
+targeted lint retains warnings but has no errors. No target, GUI, guest, device
+or capture was started. This is not delivery of the pending guest transport or
+management approval path. See [host boundary](host-execution-boundary.md).
+
 ## Local distribution and bundled skill, 2026-10-25
 
 Production setup now binds the public local launcher and exact Node executable.

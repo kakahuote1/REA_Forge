@@ -1,5 +1,6 @@
 import {
   McpServer,
+  type CallToolResult,
   type Icon,
   type RegisteredTool,
   type ServerContext,
@@ -13,6 +14,11 @@ import {
 export class RequestTrackingMcpServer extends McpServer {
   readonly #calls = new Set<Promise<unknown>>();
   #tracking = false;
+
+  /** Specialized production servers may refuse before dispatch, not merely hide a tool. */
+  protected toolAdmissionResult(_name: string): CallToolResult | undefined {
+    return undefined;
+  }
 
   /** HTTP sessions share resources across transports; stdio keeps the SDK's original behavior. */
   enableRequestTracking(): void {
@@ -36,24 +42,44 @@ export class RequestTrackingMcpServer extends McpServer {
     },
     callback: ToolCallback<InputArgs>,
   ): RegisteredTool {
+    return super.registerTool<OutputArgs, InputArgs>(
+      name,
+      config,
+      this.protectToolCallback<InputArgs>(name, config.inputSchema, callback),
+    );
+  }
+
+  /** Callback replacement must preserve the same admission and request owner. */
+  protected protectToolCallback<
+    InputArgs extends StandardSchemaWithJSON | undefined,
+  >(
+    name: string,
+    inputSchema: InputArgs | undefined,
+    callback: ToolCallback<InputArgs>,
+  ): ToolCallback<InputArgs> {
     // The SDK calls a schema-less callback with context alone, and a schema'd
     // callback with (validated input, context). Narrow its conditional type at
     // the same inputSchema discriminant used by the SDK.
     const tracked =
-      config.inputSchema === undefined
+      inputSchema === undefined
         ? (context: ServerContext) =>
-            this.runRequest(context.mcpReq.signal, () =>
-              (callback as ToolCallback<undefined>)(context),
+            this.runRequest(
+              context.mcpReq.signal,
+              () =>
+                this.toolAdmissionResult(name) ??
+                (callback as ToolCallback<undefined>)(context),
             )
         : (args: unknown, context: ServerContext) =>
-            this.runRequest(context.mcpReq.signal, () =>
-              (callback as ToolCallback<StandardSchemaWithJSON>)(args, context),
+            this.runRequest(
+              context.mcpReq.signal,
+              () =>
+                this.toolAdmissionResult(name) ??
+                (callback as ToolCallback<StandardSchemaWithJSON>)(
+                  args,
+                  context,
+                ),
             );
-    return super.registerTool<OutputArgs, InputArgs>(
-      name,
-      config,
-      tracked as ToolCallback<InputArgs>,
-    );
+    return tracked as ToolCallback<InputArgs>;
   }
 
   /** Retain HTTP dispatch, tool and completion work under the HTTP owner's shared drain. */

@@ -50,6 +50,7 @@ import {
   TARGET_CONTENT_RESULT_META,
 } from "./toolResultEncoding.js";
 import { RequestTrackingMcpServer } from "./RequestTrackingMcpServer.js";
+import { hostExecutionRefusal } from "../application/ExecutionDomainAdmission.js";
 
 export type { CompactInputSchemaPresentation } from "../contracts/compactInputSchema.js";
 
@@ -161,6 +162,17 @@ export interface StandardToolRegistration {
 
 /** Bind oversized MCP error recovery to this server's Evidence ledger. */
 export class EvidenceMcpServerCore extends RequestTrackingMcpServer {
+  protected override toolAdmissionResult(
+    name: string,
+  ): CallToolResult | undefined {
+    const refusal = hostExecutionRefusal(name);
+    return refusal === undefined
+      ? undefined
+      : this.delivery.toErrorToolResult(
+          refusal,
+          toolReturnsTargetContent(name),
+        );
+  }
   private identity: ReturnType<typeof createCatalogIdentity> | undefined;
 
   /** Composition supplies identity without importing the canonical schema graph. */
