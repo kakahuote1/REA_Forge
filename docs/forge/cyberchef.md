@@ -9,6 +9,26 @@ official CyberChef source. This is twenty named operations, not the whole
 CyberChef catalog: Base64/hex/URL/text encoding, gzip/zlib, SHA2/HMAC/CRC, XOR,
 known-parameter AES and JSON formatting. Module selection is fixed in source.
 
+## Agreed capability-family coverage
+
+The delivery scope is these explicit offline families, not every upstream
+CyberChef operation. The current catalog covers each requested family:
+
+| Requested outcome | Implemented operations | Current real verification |
+| --- | --- | --- |
+| Encoding/decoding | Base64, Hex, URL, text encoding pairs | Six byte-preserving encoding/compression roundtrips include Unicode |
+| Compression/decompression | Gzip/Gunzip, Zlib Deflate/Inflate | Paired output is reread and equals the original bytes |
+| Hash and keyed checksum facts | SHA2, HMAC, CRC Checksum | Independent Node hash/HMAC and known CRC-32 vector |
+| Known-parameter encryption/decryption | AES Encrypt/Decrypt, XOR | Independent AES cipher bytes, plaintext readback and independent XOR bytes |
+| Format conversion/normalization | Hex/text representation, JSON Beautify/Minify | Byte identity and parsed JSON equality |
+| Reproducible recipes | Validate, execute, digest-bound save/replay | CLI/MCP agreement, altered-receipt refusal, exact operation catalog and recovery |
+
+All twenty advertised operations were exercised in the current grouped receipt.
+No additional algorithm or format is implied by a family label. In particular,
+this does not advertise RSA, every compression codec, arbitrary operation imports
+or network recipes. Discovery returns the exact supported names and parameters;
+an unsupported request must remain unsupported rather than be guessed.
+
 | MCP tool                          | Purpose                                              |
 | --------------------------------- | ---------------------------------------------------- |
 | `forge_list_cyberchef_operations` | Exact operation names and argument defaults/types    |
