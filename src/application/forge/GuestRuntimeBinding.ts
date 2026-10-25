@@ -71,6 +71,10 @@ export class GuestRuntimeBinding {
   closeCase(caseId: string): void {
     this.#cases.delete(caseId);
   }
+  /** A hypervisor cutover revokes cases without closing the borrowed guest transport. */
+  invalidateCases(): void {
+    this.#cases.clear();
+  }
   async close(): Promise<void> {
     this.#closed = true;
     this.#cases.clear();

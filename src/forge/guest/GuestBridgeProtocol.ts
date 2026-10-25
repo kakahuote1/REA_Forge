@@ -7,6 +7,7 @@ export const requestGuestJson = (
   token: string,
   signal?: AbortSignal,
   payload?: Readonly<Record<string, unknown>>,
+  limits?: { readonly timeoutMs: number; readonly responseBytes: number },
 ): Promise<unknown> =>
   new Promise((resolve, reject) => {
     const body =
@@ -41,14 +42,14 @@ export const requestGuestJson = (
           cause: signal?.reason,
         }),
       );
-    // Existing /run owns its child with a 5 s run limit and bounded cleanup.
+    // Existing /run owns its selected child deadline and bounded cleanup.
     // A socket timeout alone is not evidence of remote child settlement.
     const timer = setTimeout(
       () =>
         stop(
           new Error("Guest metadata request exceeded its absolute deadline"),
         ),
-      body === undefined ? 5000 : 25000,
+      limits?.timeoutMs ?? (body === undefined ? 5000 : 25000),
     );
     signal?.addEventListener("abort", abort, { once: true });
     request.on("response", (response) => {
@@ -56,8 +57,8 @@ export const requestGuestJson = (
       let bytes = 0;
       response.on("data", (chunk: Buffer) => {
         bytes += chunk.length;
-        if (bytes > 64 * 1024) {
-          stop(new Error("Guest metadata response exceeds 64 KiB"));
+        if (bytes > (limits?.responseBytes ?? 64 * 1024)) {
+          stop(new Error(limits === undefined ? "Guest metadata response exceeds 64 KiB" : "Guest response exceeds its explicit byte budget"));
           response.destroy();
         } else chunks.push(chunk);
       });

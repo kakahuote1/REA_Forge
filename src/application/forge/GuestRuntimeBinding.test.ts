@@ -114,3 +114,9 @@ it("preserves late caller cancellation instead of creating a case", async () => 
   });
   await binding.close();
 });
+
+it("explicit hypervisor cutover revokes even an identically restored in-guest generation", async () => {
+  const { binding, port } = fixture(); const selected = await binding.openCase();
+  binding.invalidateCases(); await expect(binding.requireCase(selected.caseId)).rejects.toThrow("unknown or closed");
+  expect(port.inspect).toHaveBeenCalledTimes(1); await binding.close();
+});

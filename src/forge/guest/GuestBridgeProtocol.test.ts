@@ -102,3 +102,9 @@ it("uses an absolute deadline even when response bytes keep arriving", async () 
   await rejected;
   expect(fixture.server.listening).toBe(true);
 });
+
+it("uses explicit internal response budgets without changing the default metadata cap", async () => {
+  const fixture = await serve((_request, response) => response.end(JSON.stringify({ content: "x".repeat(70000) })));
+  expect(await requestGuestJson(fixture.url, "test-secret", undefined, undefined, { timeoutMs: 2000, responseBytes: 80000 })).toMatchObject({ content: "x".repeat(70000) });
+  await expect(requestGuestJson(fixture.url, "test-secret")).rejects.toThrow("64 KiB");
+});

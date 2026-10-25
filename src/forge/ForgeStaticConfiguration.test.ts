@@ -62,6 +62,12 @@ const fixture = async () => {
 };
 
 describe("explicit Forge static configuration", () => {
+  it("admits the LDPlayer runtime as a directory without executing the console", async () => {
+    const selected = await fixture();
+    const document = { ...selected.document, ldplayer: { executable: { path: selected.editor, sha256: "a".repeat(64) }, runtime_root: selected.inputs, input_roots: [selected.inputs], version: "pinned test console, not executed" } };
+    await writeFile(selected.configurationPath, JSON.stringify(document));
+    expect((await inspectForgeStaticConfiguration("ldplayer", selected.environment, owner())).status).toBe("available");
+  });
   it("has no implicit checkout or ambient configuration fallback", async () => {
     expect(
       await inspectForgeStaticConfiguration("editor010", {}, owner()),

@@ -64,7 +64,7 @@ const runSchema = z.object({
 export class GuestBridgeClient implements GuestHealthPort {
   readonly #configuration: GuestBridgeConfiguration;
   readonly #resources = new ArtifactResourceScope();
-  readonly #active = new Set<Promise<GuestBridgeHealth>>();
+  readonly #active = new Set<Promise<unknown>>();
   #closed = false;
 
   constructor(configuration: GuestBridgeConfiguration) {
@@ -74,7 +74,10 @@ export class GuestBridgeClient implements GuestHealthPort {
   inspect(signal?: AbortSignal): Promise<GuestBridgeHealth> {
     if (this.#closed)
       return Promise.reject(new Error("Guest bridge client is closed"));
-    const operation = this.#inspect(signal);
+    return this.#track(this.#inspect(signal));
+  }
+
+  #track<Value>(operation: Promise<Value>): Promise<Value> {
     this.#active.add(operation);
     void operation
       .finally(() => this.#active.delete(operation))
@@ -82,7 +85,7 @@ export class GuestBridgeClient implements GuestHealthPort {
     return operation;
   }
 
-  async #inspect(signal?: AbortSignal): Promise<GuestBridgeHealth> {
+  async #readToken(signal?: AbortSignal): Promise<string> {
     this.#assertActive(signal);
     const token = (
       await readRegularFileText(this.#configuration.token_file, {
@@ -102,6 +105,11 @@ export class GuestBridgeClient implements GuestHealthPort {
     if (token.length === 0)
       throw new Error("Guest authentication material is unavailable");
     this.#assertActive(signal);
+    return token;
+  }
+
+  async #inspect(signal?: AbortSignal): Promise<GuestBridgeHealth> {
+    const token = await this.#readToken(signal);
     const value = await requestGuestJson(
       new URL("health", this.#configuration.base_url),
       token,
@@ -156,6 +164,157 @@ export class GuestBridgeClient implements GuestHealthPort {
       .slice(0, 32);
     this.#assertActive(signal);
     return { ...health, ...metadata, bridgeInstanceId };
+  }
+
+  /** Internal existing protocol only. Application case owners select every path/program. */
+  writeSmallFile(
+    path: string,
+    bytes: Uint8Array,
+    signal?: AbortSignal,
+  ): Promise<void> {
+    return this.#track(
+      (async () => {
+        this.#assertActive(signal);
+        if (bytes.byteLength > 40 * 1024)
+          throw new Error("Guest transfer chunk exceeds40KiB");
+        const response = z
+          .object({
+            ok: z.literal(true),
+            path: z.literal(path),
+            bytes: z.literal(bytes.byteLength),
+          })
+          .safeParse(
+            await requestGuestJson(
+              new URL("write-file", this.#configuration.base_url),
+              await this.#readToken(signal),
+              // Once dispatched, drain this bounded physical write. Caller
+              // cancellation cannot prove that the guest did not write it.
+              undefined,
+              {
+                path,
+                contentBase64: Buffer.from(bytes).toString("base64"),
+                createParent: true,
+              },
+              { timeoutMs: 10000, responseBytes: 8192 },
+            ),
+          );
+        if (!response.success)
+          throw new Error(
+            "Guest chunk write did not return the expected path/extent; remote body withheld",
+          );
+      })(),
+    );
+  }
+
+  readSmallFile(
+    path: string,
+    maximum: number,
+    signal?: AbortSignal,
+  ): Promise<Uint8Array> {
+    return this.#track(
+      (async () => {
+        this.#assertActive(signal);
+        if (
+          !Number.isSafeInteger(maximum) ||
+          maximum < 1 ||
+          maximum > 40 * 1024
+        )
+          throw new Error("Guest read extent must be1..40KiB");
+        const response = z
+          .object({
+            ok: z.literal(true),
+            path: z.literal(path),
+            bytes: z.int().min(0).max(maximum),
+            contentBase64: z.string().max(4 * Math.ceil(maximum / 3)),
+          })
+          .safeParse(
+            await requestGuestJson(
+              new URL("read-file", this.#configuration.base_url),
+              await this.#readToken(signal),
+              signal,
+              { path, maxBytes: maximum },
+              { timeoutMs: 10000, responseBytes: 64 * 1024 },
+            ),
+          );
+        if (!response.success)
+          throw new Error(
+            "Guest bounded read did not return the expected extent; remote body withheld",
+          );
+        const decoded = Buffer.from(response.data.contentBase64, "base64");
+        if (
+          decoded.length !== response.data.bytes ||
+          decoded.toString("base64") !== response.data.contentBase64
+        )
+          throw new Error("Guest file bytes are not canonical bounded Base64");
+        this.#assertActive(signal);
+        return decoded;
+      })(),
+    );
+  }
+
+  /** No MCP remote-shell endpoint: only application-generated case programs use this port. */
+  runCaseProgram(
+    program: {
+      readonly source: string;
+      readonly timeoutMs: number;
+      readonly cwd: string;
+    },
+    signal?: AbortSignal,
+  ): Promise<{
+    readonly exitCode: number;
+    readonly timedOut: boolean;
+    readonly stdout: string;
+    readonly stderr: string;
+  }> {
+    return this.#track(
+      (async () => {
+        this.#assertActive(signal);
+        if (
+          Buffer.byteLength(program.source, "utf8") > 40 * 1024 ||
+          !Number.isSafeInteger(program.timeoutMs) ||
+          program.timeoutMs < 1 ||
+          program.timeoutMs > 60000
+        )
+          throw new Error(
+            "Guest generated program exceeds existing protocol bounds",
+          );
+        const result = z
+          .object({
+            ok: z.literal(true),
+            exitCode: z.int(),
+            timedOut: z.boolean(),
+            stdout: z.string().max(64 * 1024),
+            stderr: z.string().max(64 * 1024),
+          })
+          .safeParse(
+            await requestGuestJson(
+              new URL("run", this.#configuration.base_url),
+              await this.#readToken(signal),
+              // The existing server owns the child deadline. Do not abandon
+              // its completion response merely because the caller cancelled.
+              undefined,
+              {
+                shell: "powershell",
+                command: program.source,
+                cwd: program.cwd,
+                timeoutMs: program.timeoutMs,
+                maxOutputBytes: 16384,
+              },
+              {
+                timeoutMs: program.timeoutMs + 15000,
+                responseBytes: 256 * 1024,
+              },
+            ),
+          );
+        if (!result.success)
+          throw new Error(
+            "Generated guest program did not return the reviewed result shape; remote body withheld",
+          );
+        // A completed physical outcome is retained even if cancellation/close arrived
+        // during finalization. The application owner records it before projecting cancellation.
+        return result.data;
+      })(),
+    );
   }
 
   #assertActive(signal?: AbortSignal): void {

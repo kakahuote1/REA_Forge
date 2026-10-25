@@ -34,6 +34,51 @@ signal arbitrary PIDs. A restored snapshot can restore identical in-guest state;
 management cutovers must invalidate their cases independently. Target job
 ownership, exact sample identity and runtime dispatch remain separate work.
 
+## Case-file transfer
+
+The internal file port reuses the bridge's existing `write-file`, `read-file`
+and bounded `run` routes. It creates an exclusive UUID directory under the
+selected guest's case parent, with an exact owner marker. Callers cannot choose
+a guest destination or supply a PowerShell program through this port. Shipped
+programs attribute the bridge parent again before accessing a case and reject
+reparse paths, changed owner markers and unexpected transfer members.
+
+Files are limited to 16 MiB per transfer. The existing 64 KiB host request bound
+requires 40 KiB binary chunks after Base64/JSON expansion. Four requests may be
+in flight; a case serializes transfers, readback and release. Reassembly checks
+every part's extent and the whole-file SHA-256 before publishing a new file.
+Readback hashes the locked source, slices it through the same bounded protocol,
+then independently checks the received bytes. It never imports or runs them.
+
+Transfer work has a 90-second cooperative budget. Already-dispatched mutations
+drain their bounded responses; each generated child has a 15-second guest
+deadline and a host settlement window. Cancellation prevents subsequent work,
+not the recording of a completed physical outcome. Unknown write settlement
+retains the exact case root and refuses automatic deletion. Closing drains
+owned operations before releasing known-settled cases, never the borrowed
+bridge. This is a reviewed application boundary, not an OS sandbox against
+other privileged guest processes.
+
+## Emulator and management foundations
+
+The read-only LDPlayer adapter uses the selected pinned `ldconsole list2` and
+the physical creation/file identities of the nonzero instance directory,
+descriptor and writable disks. A deterministic VBox UUID or display name alone
+does not identify a replacement. Names are preserved for humans; missing
+process creation metadata remains unknown. Closing this adapter releases its
+query helper, not an emulator instance. This case identity does not authorize
+Android execution, signal a PID, or attest an Android boot.
+
+The shared management application defines one-shot, expiring proposals,
+revalidation, single-action serialization and incident latching. Deletion,
+reset and overwrite require a separate trusted confirmation port with an exact
+typed object name. No tool argument can act as that confirmation. Snapshot
+creation/revert requires a substantive task-necessity record. The application
+contract alone is not a delivered management feature: concrete durable journal,
+OS serialization, vendor postflight and native client input adapters must be
+integrated before exposing a management tool. Real destructive tests remain
+subject to individual user approval.
+
 ## Bounds and verification
 
 Health requests have an absolute five-second deadline. The fixed metadata child
@@ -43,10 +88,19 @@ followed. Transport credentials and remote failure bodies are not returned in
 diagnostics. Cancellation closes only the owned socket. A lost response is not
 proof of remote cleanup; this metadata-only adapter makes no such claim.
 
-The current source group has 27 deterministic checks for case freshness,
-creation-identity changes, malformed metadata, version/guest mismatch,
-cancellation, close races, bounded responses, refusal and absolute deadlines.
-The actual configured Windows guest passed two identity observations, matching
-case readback and closed-case refusal without restarting its bridge or running
-a target. The workstation receipt is private; this does not certify G11's
-debugger or target-job lifecycle.
+The expanded foundation group passed 71 deterministic source checks plus four
+pure emulator-parser/physical-identity checks. They cover the existing metadata
+boundary, case invalidation, one-shot management confirmation, transfer
+hashes/bounds, cancellation, close races and retention of uncertain writes.
+The management tests use recording ports; they do not certify a vendor writer
+or real human confirmation UI.
+
+The production foundation build passed an actual 131,091-byte transfer to the
+configured Windows guest, complete byte/hash readback, owned-case removal and
+closed-case refusal. The bridge process identity remained unchanged. The
+selected nonzero emulator instance passed read-only physical-generation
+revalidation and explicit invalidation. No target, emulator lifecycle action,
+GUI or configuration change was used. Private receipts retain timings and
+observed identities; CPU and peak process-family memory were not measured.
+This does not certify G11's debugger/target-job lifecycle or daily client
+activation.

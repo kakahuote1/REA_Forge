@@ -135,3 +135,27 @@ it("close during health drains its socket but does not admit a new metadata chil
   await closed;
   expect(requestGuestJson).toHaveBeenCalledTimes(1);
 });
+
+it("bounds file chunks and canonical Base64 before exposing any readback bytes", async () => {
+  const selected = await client();
+  await expect(selected.writeSmallFile("C:\\owned\\chunk", new Uint8Array(40961))).rejects.toThrow("40KiB");
+  expect(requestGuestJson).not.toHaveBeenCalled();
+  vi.mocked(requestGuestJson).mockResolvedValueOnce({ ok: true, path: "C:\\owned\\chunk", bytes: 1, contentBase64: "eA==" });
+  expect(await selected.readSmallFile("C:\\owned\\chunk", 1)).toEqual(Buffer.from("x"));
+  vi.mocked(requestGuestJson).mockResolvedValueOnce({ ok: true, path: "C:\\owned\\chunk", bytes: 1, contentBase64: "eA=" });
+  await expect(selected.readSmallFile("C:\\owned\\chunk", 1)).rejects.toThrow("canonical");
+  await selected.close();
+});
+
+it("retains a bounded mutation response when cancellation and close arrive after dispatch", async () => {
+  const selected = await client();
+  let settle!: (value: unknown) => void;
+  vi.mocked(requestGuestJson).mockImplementationOnce(() => new Promise(resolve => { settle = resolve; }));
+  const controller = new AbortController();
+  const pending = selected.runCaseProgram({ source: "fixed internal program", cwd: "C:\\owned", timeoutMs: 1000 }, controller.signal);
+  await vi.waitFor(() => expect(requestGuestJson).toHaveBeenCalledOnce());
+  expect(vi.mocked(requestGuestJson).mock.calls[0]?.[2]).toBeUndefined();
+  controller.abort(); const closed = selected.close();
+  settle({ ok: true, exitCode: 0, timedOut: false, stdout: "{\"completed\":true}", stderr: "" });
+  expect(await pending).toMatchObject({ exitCode: 0, timedOut: false }); await closed;
+});

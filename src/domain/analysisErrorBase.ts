@@ -264,11 +264,13 @@ import type { TrafficReport } from "./forge/offlineTraffic.js";
 import type { PythonBytecodeReport } from "./forge/pythonBytecode.js";
 import type { AndroidBuildReport } from "./forge/androidBuild.js";
 import type { PeStaticReport } from "./forge/peStatic.js";
+import type { LdPlayerObservationReport } from "./forge/ldplayerObservation.js";
 
 /** Provider-neutral evidence collected before a typed analysis failure. */
 export type AnalysisPartialObservation =
   | AndroidBuildReport
   | PeStaticReport
+  | LdPlayerObservationReport
   | PythonBytecodeReport
   | TrafficReport
   | EnrichmentReport

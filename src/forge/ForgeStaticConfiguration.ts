@@ -30,7 +30,8 @@ export type ForgeStaticFamily =
   | "android_results"
   | "pe_parser"
   | "upx"
-  | "pe_results";
+  | "pe_results"
+  | "ldplayer";
 export const FORGE_STATIC_CONFIG_SETTING = "REA_FORGE_STATIC_CONFIG";
 export const FORGE_DATA_ROOT_SETTING = "REA_FORGE_DATA_ROOT";
 const MAX_CONFIGURATION_BYTES = 64 * 1024;
@@ -176,6 +177,10 @@ export const inspectForgeStaticConfiguration = async (
         value[family === "api_hashes" ? "database" : "executable"],
       );
       await requirePath(pin.path);
+      z.string().min(1).parse(value.version);
+    } else if (family === "ldplayer") {
+      await requirePath(pinSchema.parse(value.executable).path);
+      await requirePath(absolutePath.parse(value.runtime_root), true);
       z.string().min(1).parse(value.version);
     } else if (family === "pe_parser") {
       await requirePath(pinSchema.parse(value.pefile).path);
