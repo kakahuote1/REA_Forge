@@ -31,7 +31,14 @@ export type ForgeStaticFamily =
   | "pe_parser"
   | "upx"
   | "pe_results"
-  | "ldplayer";
+  | "ldplayer"
+  | "harmony_packages"
+  | "abcde"
+  | "ark_disasm"
+  | "jadx_hap"
+  | "hap_signing"
+  | "hap_verification"
+  | "harmony_results";
 export const FORGE_STATIC_CONFIG_SETTING = "REA_FORGE_STATIC_CONFIG";
 export const FORGE_DATA_ROOT_SETTING = "REA_FORGE_DATA_ROOT";
 const MAX_CONFIGURATION_BYTES = 64 * 1024;
@@ -177,6 +184,26 @@ export const inspectForgeStaticConfiguration = async (
         value[family === "api_hashes" ? "database" : "executable"],
       );
       await requirePath(pin.path);
+      z.string().min(1).parse(value.version);
+    } else if (family === "harmony_packages" || family === "harmony_results") {
+      z.string().min(1).parse(value.version);
+    } else if (family === "ark_disasm") {
+      await requirePath(pinSchema.parse(value.executable).path);
+      z.string().min(1).parse(value.version);
+    } else if (
+      family === "abcde" ||
+      family === "jadx_hap" ||
+      family === "hap_signing" ||
+      family === "hap_verification"
+    ) {
+      await Promise.all(
+        [
+          "java",
+          "jar",
+          ...(family === "abcde" ? ["reader"] : []),
+          ...(family === "hap_signing" ? ["openssl"] : []),
+        ].map(async (name) => requirePath(pinSchema.parse(value[name]).path)),
+      );
       z.string().min(1).parse(value.version);
     } else if (family === "ldplayer") {
       await requirePath(pinSchema.parse(value.executable).path);

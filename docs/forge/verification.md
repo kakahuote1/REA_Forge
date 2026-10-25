@@ -270,3 +270,26 @@ hostile-parser sandboxing and complete transitive-dependency authentication are
 not established by this acceptance. Static lint has no errors, with remaining
 non-blocking size/complexity/parameter warnings. Raw machine-local receipts,
 fixtures, commercial engines and credentials are intentionally not published.
+## Harmony static group, 2026-10-25
+
+The native CLI/stdio group passed with installed, pinned Windows engines. REA's
+existing inventory and Harmony application projection were reused. On the same
+known HAP/ABC, abcde and official Ark observed16classes/123methods; selected
+instructions and encoded references were read back, supported experimental JS
+was retained, and unsupported opcode reconstruction failed explicitly.
+JADX-HAP produced16 actual source files from extracted ABC. The legacy resource
+fixture yielded118entries; RestoolV2 remains explicitly unsupported.
+
+Fresh self-signed test signing and independent signature verification passed,
+including a configured-profile route using fixture keys, unchanged certificate/
+profile hashes and unsigned/tampered negatives. This does not establish platform
+trust, deployment rights or production-key acceptance. Actual Java/Ark/signature
+deadlines, cancellation recovery, missing-engine isolation, CLI parity, original
+preservation and owned request cleanup passed. Successful producers were reused
+only after receipt/full-artifact hash checks. Final affected tail7.630seconds;
+CPU and peak process-family memory were not measured.
+
+The group added8 operations; the observed catalog285/Forge65 is not proof of
+daily Codex activation. Optional Linux engines/assembler prerequisites, guest
+runtime and human workbench remain separately tracked. No target, GUI, device,
+trust store or operator configuration was changed.

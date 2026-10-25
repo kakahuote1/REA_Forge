@@ -16,6 +16,8 @@ import { createForgeAndroidBuildService } from "../composition/forgeAndroidBuild
 import { registerForgeAndroidBuildTools } from "./registerForgeAndroidBuildTools.js";
 import { createForgePeStaticService } from "../composition/forgePeStatic.js";
 import { registerForgePeStaticTools } from "./registerForgePeStaticTools.js";
+import { createForgeHarmonyStaticService } from "../composition/forgeHarmonyStatic.js";
+import { registerForgeHarmonyStaticTools } from "./registerForgeHarmonyStaticTools.js";
 import { registerForgeDotnetTools } from "./registerForgeDotnetTools.js";
 import { createForgeCyberChefService } from "../composition/forgeCyberChef.js";
 import { registerForgeCyberChefTools } from "./registerForgeCyberChefTools.js";
@@ -472,6 +474,7 @@ export const createServer = (
   const forgePython = createForgePythonBytecodeService(environment);
   const forgeAndroidBuild = createForgeAndroidBuildService(environment);
   const forgePeStatic = createForgePeStaticService(environment);
+  const forgeHarmonyStatic = createForgeHarmonyStaticService(environment);
   const forgeCyberChef = createForgeCyberChefService(environment);
   const packetCapture =
     options.packetCapture ?? createPacketCaptureService(environment);
@@ -503,6 +506,7 @@ export const createServer = (
       forgePython.close(),
       forgeAndroidBuild.close(),
       forgePeStatic.close(),
+      forgeHarmonyStatic.close(),
       forgeCyberChef.close(),
       packetCapture.close(),
       signalRecording.close(),
@@ -775,6 +779,13 @@ export const createServer = (
     recordEvidence,
     analysisAdmission,
   );
+  registerForgeHarmonyStaticTools(
+    server,
+    forgeHarmonyStatic,
+    toolLogger,
+    recordEvidence,
+    analysisAdmission,
+  );
   registerForgePeStaticTools(
     server,
     forgePeStatic,
@@ -852,6 +863,7 @@ export const createServer = (
           python,
           androidBuild,
           peStatic,
+          harmonyStatic,
         ] = await Promise.all([
           forgeBinaryEditor.inspectAvailability(signal),
           forgeJava.inspectAvailability(signal),
@@ -862,6 +874,7 @@ export const createServer = (
           forgePython.inspectAvailability(signal),
           forgeAndroidBuild.inspectAvailability(signal),
           forgePeStatic.inspectAvailability(signal),
+          forgeHarmonyStatic.inspectAvailability(signal),
         ]);
         return Object.fromEntries([
           ...Object.entries(enrichment),
@@ -869,6 +882,7 @@ export const createServer = (
           ...Object.entries(python),
           ...Object.entries(androidBuild),
           ...Object.entries(peStatic),
+          ...Object.entries(harmonyStatic),
           ...FORGE_BINARY_EDITOR_TOOL_CONTRACTS.map(({ name }) => [
             name,
             editor,

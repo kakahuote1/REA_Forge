@@ -17,6 +17,11 @@ const EXECUTION_WORDING =
   /\b(?:run|runs|running|launch|launches|launching|execute|executes|executing|execution|start|starts|install|installs|uninstall|uninstalls)\b/iu;
 
 const EXECUTION_WORDING_EXCEPTIONS: Readonly<Record<string, string>> = {
+  forge_inspect_hap: "trusted ZIP/metadata inspection, not target execution",
+  forge_inspect_abc: "trusted static bytecode/index readers, not ABC execution",
+  forge_disassemble_ark: "official static disassembler, not a target VM",
+  forge_decompile_hap:
+    "trusted fixed reconstruction engine, not target execution or arbitrary Java classes",
   forge_inspect_pe: "trusted parser reads PE data without loading target code",
   forge_test_upx:
     "trusted UPX test reads copied bytes without target execution",

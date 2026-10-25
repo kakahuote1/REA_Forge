@@ -76,3 +76,18 @@ Use `forge_read_pe_result` for retained graph/fact pages and exact artifact
 bytes. No target or dependency is loaded. DiE, Unipacker emulation and dynamic
 dumping remain under execution-domain integration, not available through this
 host subset. See `docs/forge/pe-static.md` for these explicit boundaries.
+
+For HAP/HSP/App Pack, reuse `inspect_artifact`, `extract_artifact` and
+`project_harmony_application_graph` for the authenticated application graph.
+Use `forge_inspect_hap` for full bounded extraction/metadata, then
+`forge_inspect_abc` for header/classes/methods or legacy resource indexes.
+`forge_disassemble_ark` gives independent official assembly;
+`forge_render_abc_method` selects exact offsets and encoded references or
+experimental JS. `forge_decompile_hap` is a separate JADX-HAP reconstruction
+that requires real ABC and source outputs. Never call resource-only results
+successful decompilation. `forge_sign_hap` makes a new copy and
+`forge_verify_hap_signature` performs actual offline verification; default
+test identity is not deployable or trusted. Preserve receipt path/digest and
+use `forge_read_harmony_result` for facets, JSONL/text pages or raw artifact
+bytes. All of these are static; code reconstruction and signatures do not
+prove runtime behavior or benignness. See `docs/forge/harmony-static.md`.
