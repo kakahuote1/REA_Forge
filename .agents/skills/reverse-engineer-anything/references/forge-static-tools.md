@@ -65,3 +65,14 @@ identities; passwords are operator-configured files, never tool arguments.
 Native `inspect_apk_signature` reports declarations separately from cryptographic
 verification. These static tools do not install or execute APKs; use an explicit
 guest/device workflow for runtime validation. See `docs/forge/android-build.md`.
+
+For PE facts use `forge_inspect_pe` and select a facet/page; native
+`inspect_pe_resources`, `inspect_pe_certificates` and `inspect_native_exports`
+retain their exact-format contracts. `forge_resolve_pe_dependencies` returns
+static candidates, not Windows loader truth; control depth/node budgets and
+keep source coverage. `forge_test_upx` verifies the selected packed input;
+`forge_unpack_upx` creates a fresh output, which should be inspected afterward.
+Use `forge_read_pe_result` for retained graph/fact pages and exact artifact
+bytes. No target or dependency is loaded. DiE, Unipacker emulation and dynamic
+dumping remain under execution-domain integration, not available through this
+host subset. See `docs/forge/pe-static.md` for these explicit boundaries.

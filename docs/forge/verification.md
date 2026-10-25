@@ -1,5 +1,37 @@
 # Verified downstream scope
 
+## PE/UPX host subset, 2026-10-25
+
+Five added operations reuse audited pure PE/dependency parsers and fixed UPX
+commands through native configuration, service, CLI/MCP and Evidence. The whole
+host subset passed against existing known-source plain/packed PE fixtures in
+10.391 seconds. Independent PE header bytes, native resource/certificate/export
+readers, real APISet/KnownDLL metadata, bounded dependency graph/readback,
+UPX packed/nonpacked test outcomes, fresh unpacked output/headers and original
+hashes were checked. Negative requests, a real 1 ms native timeout,
+cancellation/recovery and CLI parity passed; temporary ownership settled.
+The first run's mistaken x86 assumption was corrected to an independent byte
+oracle; the fixture was actually PE32+. No fixture or dependency was executed.
+
+Migration also corrects producing boundaries: entropy no longer scans a section
+256 times, the TLS reader avoids a whole-file copy, DLL identities do not become
+paths, Unicode/DTD manifest handling is explicit, KnownDLL directory entries do
+not become DLL names, depth truncation is reported, and previously examined
+edges are not claimed to establish cycles. Parser observations retain their
+limits rather than becoming an authoritative Windows loader result.
+
+The source group passed 157 unique cases (40 service/config/effects, four Python
+boundary cases and 113 module checks). One stale effects exception was removed
+and only that failing file was rerun. The test type graph passed in 7.344 seconds;
+the bounded production build passed in 99.500 seconds. Targeted lint has no
+errors and retains the standard registration-parameter warning. CPU time and
+peak process-family memory were not measured.
+
+G07 stays unchecked: DiE rule evaluation and existing Unipacker emulation still
+need their execution-domain integration; dynamic dumping belongs to the guest
+chain. See [host operation scope](pe-static.md). This subset does not replace
+those remaining requirements or authorize retirement of their installations.
+
 ## Android static analysis and derived builds, 2026-10-25
 
 Seven added operations reuse the native CLI/MCP/Evidence path. A known-source

@@ -62,6 +62,7 @@
     "bridge/forge/traffic",
     "bridge/forge/python_reverse",
     "bridge/forge/android_build",
+    "bridge/forge/pe",
     "bridge/native/NativeUIChildren.swift",
     "bridge/native/ReaNativeUI.swift",
     "bridge/native/rea_lldb_tracer.py",

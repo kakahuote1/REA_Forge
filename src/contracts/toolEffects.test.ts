@@ -17,6 +17,11 @@ const EXECUTION_WORDING =
   /\b(?:run|runs|running|launch|launches|launching|execute|executes|executing|execution|start|starts|install|installs|uninstall|uninstalls)\b/iu;
 
 const EXECUTION_WORDING_EXCEPTIONS: Readonly<Record<string, string>> = {
+  forge_inspect_pe: "trusted parser reads PE data without loading target code",
+  forge_test_upx:
+    "trusted UPX test reads copied bytes without target execution",
+  forge_unpack_upx:
+    "trusted UPX transforms copied bytes without target execution",
   forge_build_android_project:
     "trusted static compiler builds copied files without Android execution",
   forge_disassemble_dex:

@@ -27,7 +27,10 @@ export type ForgeStaticFamily =
   | "apk_workspace"
   | "smali"
   | "apk_signing"
-  | "android_results";
+  | "android_results"
+  | "pe_parser"
+  | "upx"
+  | "pe_results";
 export const FORGE_STATIC_CONFIG_SETTING = "REA_FORGE_STATIC_CONFIG";
 export const FORGE_DATA_ROOT_SETTING = "REA_FORGE_DATA_ROOT";
 const MAX_CONFIGURATION_BYTES = 64 * 1024;
@@ -166,12 +169,16 @@ export const inspectForgeStaticConfiguration = async (
     } else if (
       family === "capa" ||
       family === "floss" ||
-      family === "api_hashes"
+      family === "api_hashes" ||
+      family === "upx"
     ) {
       const pin = pinSchema.parse(
         value[family === "api_hashes" ? "database" : "executable"],
       );
       await requirePath(pin.path);
+      z.string().min(1).parse(value.version);
+    } else if (family === "pe_parser") {
+      await requirePath(pinSchema.parse(value.pefile).path);
       z.string().min(1).parse(value.version);
     } else if (family === "pcap") {
       const pin = pinSchema.parse(value.tshark);
