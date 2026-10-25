@@ -1,5 +1,38 @@
 # Verified downstream scope
 
+## Native configuration and discovery, 2026-10-25
+
+The four existing static families now receive explicit operator configuration
+and data selectors through REA composition. CLI and MCP share narrow application
+ports. Session discovery reports their individual file-presence readiness before
+opening a binary; readiness is not a license or engine-execution claim.
+
+The affected source group passed 43 tests, typechecking, and ten selected module
+boundaries. The runtime/catalog/skill build passed in 22.735 seconds. Targeted
+lint has no errors and retains three size/parameter warnings. The source test
+selector initially refused the new adapter directory; the existing adapters
+project now explicitly owns it, and the complete selected group passed.
+
+Real CLI/stdio MCP groups passed again with the explicit configuration path:
+010 in 20.368 seconds, Java in 32.996, CyberChef in 22.120, and dnSpy in 84.712
+(76 successful native calls and all thirteen effectful edits/readbacks).
+The original preservation, native cancellation, recovery and owned-request
+closure checks passed. Fixtures were source-owned and target code did not run.
+
+The affected production startup check passed in 4.614 seconds: a separate
+operator configuration file and independent working directory, all 27 static
+operations available without `open_binary`, missing Java isolated from its
+peers, malformed optional configuration reported without breaking status, and
+same-connection recovery after repair. The complete catalog remains 247 tools.
+No GUI, device, VM, proxy capture or user client configuration was changed.
+
+This verifies the configuration/discovery work package, not daily Codex
+activation, the remaining host/guest execution policy, new engine migrations,
+human-workbench delivery, or old-framework retirement. Earlier group limitations
+below still apply. Machine-local receipts remain private.
+
+## Earlier static-engine verification
+
 The 010 fault-path acceptance also exercised actual 35-second native expiry,
 owned-handle termination and same-connection recovery, separately from the
 completed functional inventory.

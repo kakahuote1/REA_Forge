@@ -8,6 +8,8 @@ const SELECTED_REGISTRATION_SETTINGS = [
   "REA_JEB_MCP_TIMEOUT_MS",
   "REA_MCP_INPUT_SCHEMA_PROFILE",
   "REA_REGEX_MATCHING_DEADLINE_MS",
+  "REA_FORGE_STATIC_CONFIG",
+  "REA_FORGE_DATA_ROOT",
 ] as const;
 
 /** Preserve selected setup settings without copying unrelated process values. */

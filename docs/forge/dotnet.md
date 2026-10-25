@@ -1,5 +1,9 @@
 # dnSpy static analysis and derived editing
 
+Select the operator configuration and data directory through
+[static-provider configuration](static-configuration.md); production does not
+infer either from the checkout location.
+
 Forge adds five typed CLI/MCP operations backed by the installed dnSpy/dnlib,
 ILSpy decompiler and Roslyn APIs. It retains upstream REA's metadata/CIL tools;
 their read-only contracts are unchanged.

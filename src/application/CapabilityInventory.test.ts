@@ -48,6 +48,40 @@ const enabledPolicy: Parameters<typeof buildCapabilityInventory>[1] = {
   v8InspectorObservationEnabled: true,
 };
 
+it("reports all Forge static operations before opening a binary using their actual provider readiness", () => {
+  const names = TOOL_CONTRACTS.filter(
+    ({ kind }) => kind === "forge-static-provider",
+  ).map(({ name }) => name);
+  expect(names).toHaveLength(27);
+  const closed = { open: false, capabilities: [] };
+  const missing = buildCapabilityInventory(closed, {
+    processCaptureEnabled: false,
+  });
+  for (const name of names)
+    expect(missing.find((tool) => tool.name === name)).toMatchObject({
+      available: false,
+      reason: "provider_missing",
+    });
+  const available = buildCapabilityInventory(closed, {
+    processCaptureEnabled: false,
+    forgeStaticAvailability: Object.fromEntries(
+      names.map((name) => [
+        name,
+        {
+          status: "available",
+          code: null,
+          reason: null,
+          diagnostics: {},
+        } as const,
+      ]),
+    ),
+  });
+  for (const name of names)
+    expect(available.find((tool) => tool.name === name)).toMatchObject({
+      available: true,
+    });
+});
+
 const status = (
   options: {
     readonly open?: boolean;

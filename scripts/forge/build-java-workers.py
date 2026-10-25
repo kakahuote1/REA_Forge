@@ -7,12 +7,13 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "bridge" / "forge"))
 from java.configuration import configuration, pinned_engine, sha256
+from common.paths import PRIVATE_ROOT
 
 
 def main() -> None:
     selected = configuration()
     compiler = pinned_engine(selected, "javac")
-    build = ROOT / ".forge-local" / "build" / "java"
+    build = PRIVATE_ROOT / "build" / "java"
     build.mkdir(parents=True, exist_ok=True)
     manifest = {}
     for engine in ("recaf", "bcv"):

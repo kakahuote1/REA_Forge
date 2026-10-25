@@ -4,11 +4,12 @@ import { analysisInputErrorFromIssues } from "../../domain/inputIssueProjection.
 import { createEvidence, type Evidence } from "../../domain/evidence.js";
 import {
   cyberChefInputSchemas,
+  type CyberChefReport,
   type ForgeCyberChefOperation,
 } from "../../domain/forge/cyberChef.js";
 import { jsonObjectSchema } from "../../domain/jsonValue.js";
 import { err, type Result } from "../../domain/result.js";
-import type { CyberChefAdapter } from "../../forge/cyberchef/CyberChefAdapter.js";
+import type { ForgeStaticAnalysisPort } from "./ForgeStaticAnalysisPort.js";
 import { completeProviderEvidence } from "../ProviderOperationExecution.js";
 export const FORGE_CYBERCHEF_PROVIDER = {
   id: "forge-cyberchef",
@@ -16,7 +17,15 @@ export const FORGE_CYBERCHEF_PROVIDER = {
   version: "1",
 } as const;
 export class CyberChefService {
-  constructor(readonly adapter: CyberChefAdapter) {}
+  constructor(
+    readonly adapter: ForgeStaticAnalysisPort<
+      ForgeCyberChefOperation,
+      CyberChefReport
+    >,
+  ) {}
+  inspectAvailability(signal?: AbortSignal) {
+    return this.adapter.inspectAvailability(signal);
+  }
   close(): Promise<void> {
     return this.adapter.close();
   }

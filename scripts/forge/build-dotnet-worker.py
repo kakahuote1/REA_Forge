@@ -9,7 +9,9 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[2]
-PRIVATE = ROOT / ".forge-local"
+PRIVATE = Path(os.environ["REA_FORGE_DATA_ROOT"])
+if not PRIVATE.is_absolute():
+    raise ValueError("REA_FORGE_DATA_ROOT must be an explicit absolute path")
 
 
 def digest(path: Path) -> str:

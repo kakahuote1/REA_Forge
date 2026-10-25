@@ -40,7 +40,7 @@ const contract = <Name extends ForgeDotnetOperation>(name: Name) =>
   ({
     name,
     ...toolContractMetadata(name),
-    kind: "artifact-provider",
+    kind: "forge-static-provider",
     description: descriptions[name],
     inputSchema: dotnetInputSchemas[name],
     outputSchema: evidenceResultOf(dotnetReportSchema),

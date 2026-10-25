@@ -1,5 +1,9 @@
 # Offline CyberChef integration
 
+Select the operator configuration and data directory through
+[static-provider configuration](static-configuration.md); production does not
+infer either from the checkout location.
+
 Five typed tools expose the existing reviewed offline subset of the installed
 official CyberChef source. This is twenty named operations, not the whole
 CyberChef catalog: Base64/hex/URL/text encoding, gzip/zlib, SHA2/HMAC/CRC, XOR,

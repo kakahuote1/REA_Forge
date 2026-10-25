@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { isAbsolute, join } from "node:path";
+import { mkdir, writeFile } from "node:fs/promises";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { z } from "zod";
 import {
@@ -33,6 +33,15 @@ import {
 } from "../process/OwnedCommand.js";
 import { PrivateRuntimeRoot } from "../process/PrivateRuntimeRoot.js";
 import type { ExecutionOptions } from "../application/AnalysisProvider.js";
+import { snapshotEnvironment } from "../process/snapshotEnvironment.js";
+import {
+  readForgeStaticConfiguration,
+  inspectForgeStaticConfiguration,
+  FORGE_STATIC_CONFIG_SETTING,
+  FORGE_DATA_ROOT_SETTING,
+  type ForgeStaticFamily,
+  type ForgeStaticConfiguration,
+} from "./ForgeStaticConfiguration.js";
 
 const ROOT = fileURLToPath(new URL("../../", import.meta.url));
 const DEADLINE_MS = 55_000;
@@ -43,12 +52,26 @@ export class OwnedStaticHelper<
   Report extends AnalysisPartialObservation & { readonly operation: Operation },
 > {
   readonly #resources = new ArtifactResourceScope();
+  readonly #environment: Readonly<NodeJS.ProcessEnv>;
 
   constructor(
     readonly provider: string,
     readonly helper: string,
     readonly reportSchema: z.ZodType<Report>,
-  ) {}
+    readonly family: ForgeStaticFamily,
+    environment: Readonly<NodeJS.ProcessEnv>,
+  ) {
+    this.#environment = snapshotEnvironment(environment);
+  }
+
+  inspectAvailability(signal?: AbortSignal) {
+    return inspectForgeStaticConfiguration(
+      this.family,
+      this.#environment,
+      this.#resources,
+      signal,
+    );
+  }
 
   close(): Promise<void> {
     return this.#resources.close();
@@ -60,8 +83,27 @@ export class OwnedStaticHelper<
     options?: ExecutionOptions,
   ): Promise<Result<Report, AnalysisError>> {
     try {
+      // The regular-file owner admits configuration independently; do not re-enter
+      // the same draining scope from an already admitted operation.
+      const configuration = await readForgeStaticConfiguration(
+        this.#environment,
+        this.#resources,
+        options?.signal,
+      ).catch((cause: unknown) => {
+        if (
+          cause instanceof AnalysisError ||
+          cause instanceof ArtifactResourceRetryFailure
+        )
+          throw cause;
+        throw new AnalysisCapabilityUnavailableError(
+          this.provider,
+          operation,
+          "Configure explicit REA_FORGE_STATIC_CONFIG and REA_FORGE_DATA_ROOT paths and a valid Python executable.",
+          { cause },
+        );
+      });
       return await this.#resources.run(() =>
-        this.#execute(operation, parameters, options),
+        this.#execute(operation, parameters, configuration, options),
       );
     } catch (cause) {
       return err(this.#failure(operation, cause));
@@ -71,34 +113,16 @@ export class OwnedStaticHelper<
   async #execute(
     operation: Operation,
     parameters: Readonly<Record<string, JsonValue>>,
+    configuration: ForgeStaticConfiguration,
     options?: ExecutionOptions,
   ): Promise<Result<Report, AnalysisError>> {
     if (options?.signal?.aborted)
       return err(
         new AnalysisCancelledError(operation, { cause: options.signal.reason }),
       );
-    let python: string;
-    try {
-      const configuration = JSON.parse(
-        await readFile(join(ROOT, ".forge-local/config/tools.json"), "utf8"),
-      ) as unknown;
-      python = z
-        .object({ python_executable: z.string().min(1) })
-        .parse(configuration).python_executable;
-      if (!isAbsolute(python)) throw new Error("Python path must be absolute");
-    } catch (cause) {
-      return err(
-        new AnalysisCapabilityUnavailableError(
-          this.provider,
-          operation,
-          "Configure the operator-owned .forge-local/config/tools.json and absolute Python executable first.",
-          { cause },
-        ),
-      );
-    }
-    await mkdir(join(ROOT, ".forge-local/tmp"), { recursive: true });
+    await mkdir(join(configuration.dataRoot, "tmp"), { recursive: true });
     const runtime = await PrivateRuntimeRoot.create({
-      parent: join(ROOT, ".forge-local/tmp"),
+      parent: join(configuration.dataRoot, "tmp"),
       prefix: `${this.provider}-request-`,
     });
     let commandFailure: OwnedCommandFailure | undefined;
@@ -135,6 +159,12 @@ export class OwnedStaticHelper<
     let outcome: Result<Report, AnalysisError>;
     try {
       const request = join(runtime.path, "request.json");
+      const configurationSnapshot = join(runtime.path, "configuration.json");
+      await writeFile(
+        configurationSnapshot,
+        JSON.stringify(configuration.document),
+        { flag: "wx" },
+      );
       await writeFile(
         request,
         JSON.stringify({ operation, arguments: parameters }),
@@ -142,7 +172,7 @@ export class OwnedStaticHelper<
       );
       const snapshot = await runOwnedCommand(
         {
-          command: python,
+          command: configuration.python,
           arguments: [
             "-I",
             "-S",
@@ -154,6 +184,11 @@ export class OwnedStaticHelper<
           expectedCommand: null,
           runId: randomUUID(),
           cwd: ROOT,
+          env: {
+            ...this.#environment,
+            [FORGE_STATIC_CONFIG_SETTING]: configurationSnapshot,
+            [FORGE_DATA_ROOT_SETTING]: configuration.dataRoot,
+          },
           memoryLimitBytes: 1024 * 1024 * 1024,
         },
         {

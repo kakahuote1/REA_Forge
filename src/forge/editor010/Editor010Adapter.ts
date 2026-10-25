@@ -10,11 +10,13 @@ export class Editor010Adapter extends OwnedStaticHelper<
   ForgeBinaryEditorOperation,
   BinaryEditorReport
 > {
-  constructor() {
+  constructor(environment: Readonly<NodeJS.ProcessEnv> = process.env) {
     super(
       "forge-010editor",
       "bridge/forge/editor010/worker.py",
       binaryEditorReportSchema,
+      "editor010",
+      environment,
     );
   }
 }

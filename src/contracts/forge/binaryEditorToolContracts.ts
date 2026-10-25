@@ -73,7 +73,7 @@ const contract = <Name extends ForgeBinaryEditorOperation>(name: Name) =>
   ({
     name,
     ...toolContractMetadata(name),
-    kind: "artifact-provider",
+    kind: "forge-static-provider",
     description: descriptions[name],
     inputSchema: binaryEditorInputSchemas[name],
     outputSchema: evidenceResultOf(binaryEditorReportSchema),

@@ -13,6 +13,7 @@ import { withCommandCancellation } from "./commandCancellation.js";
 export const registerForgeDotnetCommands = (
   cli: CliInstance,
   logger: Logger,
+  environment: Readonly<NodeJS.ProcessEnv> = process.env,
 ): void => {
   for (const contract of FORGE_DOTNET_TOOL_CONTRACTS) {
     const command = contract.name.replaceAll("_", "-");
@@ -32,7 +33,7 @@ export const registerForgeDotnetCommands = (
                   userMessage: "input must match this typed Dotnet operation",
                 }),
               );
-            const service = createForgeDotnetService();
+            const service = createForgeDotnetService(environment);
             return finishAnalysisCommand(
               () => service.execute(contract.name, decoded.value, { signal }),
               service,

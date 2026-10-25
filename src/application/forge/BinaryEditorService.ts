@@ -4,11 +4,12 @@ import { analysisInputErrorFromIssues } from "../../domain/inputIssueProjection.
 import { createEvidence, type Evidence } from "../../domain/evidence.js";
 import {
   binaryEditorInputSchemas,
+  type BinaryEditorReport,
   type ForgeBinaryEditorOperation,
 } from "../../domain/forge/binaryEditor.js";
 import { jsonObjectSchema } from "../../domain/jsonValue.js";
 import { err, ok, type Result } from "../../domain/result.js";
-import type { Editor010Adapter } from "../../forge/editor010/Editor010Adapter.js";
+import type { ForgeStaticAnalysisPort } from "./ForgeStaticAnalysisPort.js";
 import { completeProviderEvidence } from "../ProviderOperationExecution.js";
 
 export const FORGE_BINARY_EDITOR_PROVIDER = {
@@ -19,7 +20,15 @@ export const FORGE_BINARY_EDITOR_PROVIDER = {
 
 /** Strict public arguments and canonical Evidence, shared by CLI and MCP. */
 export class BinaryEditorService {
-  constructor(readonly adapter: Editor010Adapter) {}
+  constructor(
+    readonly adapter: ForgeStaticAnalysisPort<
+      ForgeBinaryEditorOperation,
+      BinaryEditorReport
+    >,
+  ) {}
+  inspectAvailability(signal?: AbortSignal) {
+    return this.adapter.inspectAvailability(signal);
+  }
   close(): Promise<void> {
     return this.adapter.close();
   }

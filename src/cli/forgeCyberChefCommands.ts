@@ -13,6 +13,7 @@ import { withCommandCancellation } from "./commandCancellation.js";
 export const registerForgeCyberChefCommands = (
   cli: CliInstance,
   logger: Logger,
+  environment: Readonly<NodeJS.ProcessEnv> = process.env,
 ): void => {
   for (const contract of FORGE_CYBERCHEF_TOOL_CONTRACTS) {
     const command = contract.name.replaceAll("_", "-");
@@ -32,7 +33,7 @@ export const registerForgeCyberChefCommands = (
                   userMessage: "input must match this offline recipe operation",
                 }),
               );
-            const service = createForgeCyberChefService();
+            const service = createForgeCyberChefService(environment);
             return finishAnalysisCommand(
               () => service.execute(contract.name, decoded.value, { signal }),
               service,

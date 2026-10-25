@@ -52,6 +52,9 @@ type ToolAvailabilityReason = "available" | ToolUnavailabilityReason;
 
 type ProviderDescriptor = ProviderCapability;
 export type AvailabilityPolicy = {
+  readonly forgeStaticAvailability?: Readonly<
+    Record<string, ProviderAvailability>
+  >;
   readonly packetCaptureEnabled?: boolean;
   readonly signalRecordingEnabled?: boolean;
   readonly wasmArtifactEnabled?: boolean;
@@ -411,6 +414,11 @@ const workflowAvailabilityFor = ({
   kind,
   policy,
 }: AvailabilityContext): Availability | null => {
+  if (kind === "forge-static-provider")
+    return ownerProbeAvailability(
+      policy.forgeStaticAvailability?.[name],
+      "Configure the explicit REA_FORGE_STATIC_CONFIG and REA_FORGE_DATA_ROOT provider settings.",
+    );
   if (
     name === "inspect_desktop_application" ||
     name === "inspect_go_binary" ||

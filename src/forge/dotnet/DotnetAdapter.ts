@@ -8,7 +8,13 @@ export class DotnetAdapter extends OwnedStaticHelper<
   ForgeDotnetOperation,
   DotnetReport
 > {
-  constructor() {
-    super("forge-dotnet", "bridge/forge/dotnet/worker.py", dotnetReportSchema);
+  constructor(environment: Readonly<NodeJS.ProcessEnv> = process.env) {
+    super(
+      "forge-dotnet",
+      "bridge/forge/dotnet/worker.py",
+      dotnetReportSchema,
+      "dotnet",
+      environment,
+    );
   }
 }

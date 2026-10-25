@@ -8,11 +8,13 @@ export class CyberChefAdapter extends OwnedStaticHelper<
   ForgeCyberChefOperation,
   CyberChefReport
 > {
-  constructor() {
+  constructor(environment: Readonly<NodeJS.ProcessEnv> = process.env) {
     super(
       "forge-cyberchef",
       "bridge/forge/cyberchef/worker.py",
       cyberChefReportSchema,
+      "cyberchef",
+      environment,
     );
   }
 }

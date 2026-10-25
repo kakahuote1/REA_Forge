@@ -24,6 +24,7 @@ export const TOOL_KINDS = [
   "native-provider",
   "artifact-provider",
   "managed-provider",
+  "forge-static-provider",
   "android-provider",
   "apktool-provider",
   "flutter-provider",

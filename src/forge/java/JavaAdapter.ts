@@ -8,7 +8,13 @@ export class JavaAdapter extends OwnedStaticHelper<
   ForgeJavaOperation,
   JavaReport
 > {
-  constructor() {
-    super("forge-java", "bridge/forge/java/worker.py", javaReportSchema);
+  constructor(environment: Readonly<NodeJS.ProcessEnv> = process.env) {
+    super(
+      "forge-java",
+      "bridge/forge/java/worker.py",
+      javaReportSchema,
+      "java",
+      environment,
+    );
   }
 }

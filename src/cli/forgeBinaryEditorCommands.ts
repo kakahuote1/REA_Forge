@@ -15,6 +15,7 @@ import { logCliCommand } from "../cliLogging.js";
 export const registerForgeBinaryEditorCommands = (
   cli: CliInstance,
   logger: Logger,
+  environment: Readonly<NodeJS.ProcessEnv> = process.env,
 ): void => {
   for (const contract of FORGE_BINARY_EDITOR_TOOL_CONTRACTS) {
     const command = contract.name.replaceAll("_", "-");
@@ -35,7 +36,7 @@ export const registerForgeBinaryEditorCommands = (
                     "input must be a JSON object matching this tool's arguments",
                 }),
               );
-            const service = createForgeBinaryEditorService();
+            const service = createForgeBinaryEditorService(environment);
             return finishAnalysisCommand(
               () => service.execute(contract.name, decoded.value, { signal }),
               service,

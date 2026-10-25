@@ -144,9 +144,25 @@ def main() -> None:
             receipt = (output.parent / status["receipt"]).resolve(strict=True)
             if not receipt.is_relative_to(output.parent) or json.loads(receipt.read_text(encoding="utf-8"))["status"] != "passed":
                 raise ValueError("migration status does not reference a passed local acceptance")
+        lock = declaration.get("dependency_lock")
+        lock_observation = None
+        if isinstance(lock, dict) and isinstance(lock.get("path"), str):
+            lock_path = Path(lock["path"])
+            selected_lock = lock_path if lock_path.is_absolute() else legacy / lock_path
+            regular_lock = selected_lock.is_file() and not selected_lock.is_symlink()
+            observed_lock = sha256(selected_lock) if regular_lock else None
+            expected_lock = lock.get("sha256")
+            lock_observation = {
+                "path": str(selected_lock), "present": regular_lock,
+                "sha256": observed_lock, "expected_sha256": expected_lock,
+                "matches_recorded_hash": observed_lock == expected_lock
+                if regular_lock and expected_lock else None,
+                "runtime_compatibility": "not_probed", "license": "not_inspected",
+            }
         rows.append({"adapter_id": adapter, "group": group, "delivery_groups": targets,
                      "disposition": disposition,
                      "declared_capabilities": declaration.get("capabilities", []),
+                     "dependency_lock_observation": lock_observation,
                      "historical_release_status": declaration.get("release_status"),
                      "historical_registration_allowed": declaration.get("codex_registration_allowed"),
                      "pending_scope": declaration.get("pending_scope", []),
@@ -164,6 +180,12 @@ def main() -> None:
                     "delivery_groups": dict(Counter(target for row in rows for target in row["delivery_groups"])),
                     "dispositions": dict(Counter(row["disposition"] for row in rows)),
                     "historical_release_states": dict(Counter(str(row["historical_release_status"]) for row in rows)),
+                    "missing_artifact_references": sum(not artifact["present"]
+                                                       for row in rows for artifact in row["artifacts"]),
+                    "dependency_lock_mismatches": sum(
+                        row["dependency_lock_observation"] is not None and
+                        row["dependency_lock_observation"]["matches_recorded_hash"] is False
+                        for row in rows),
                     "source_hash_mismatches": sum(artifact["matches_recorded_hash"] is False
                                                   for row in rows for artifact in row["artifacts"])},
         "tools": rows,

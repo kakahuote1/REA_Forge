@@ -34,7 +34,7 @@ const contract = <Name extends ForgeCyberChefOperation>(name: Name) =>
   ({
     name,
     ...toolContractMetadata(name),
-    kind: "artifact-provider",
+    kind: "forge-static-provider",
     description: descriptions[name],
     inputSchema: cyberChefInputSchemas[name],
     outputSchema: evidenceResultOf(cyberChefReportSchema),

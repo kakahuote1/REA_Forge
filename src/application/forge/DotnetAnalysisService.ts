@@ -4,11 +4,12 @@ import { analysisInputErrorFromIssues } from "../../domain/inputIssueProjection.
 import { createEvidence, type Evidence } from "../../domain/evidence.js";
 import {
   dotnetInputSchemas,
+  type DotnetReport,
   type ForgeDotnetOperation,
 } from "../../domain/forge/dotnetAnalysis.js";
 import { jsonObjectSchema } from "../../domain/jsonValue.js";
 import { err, type Result } from "../../domain/result.js";
-import type { DotnetAdapter } from "../../forge/dotnet/DotnetAdapter.js";
+import type { ForgeStaticAnalysisPort } from "./ForgeStaticAnalysisPort.js";
 import { completeProviderEvidence } from "../ProviderOperationExecution.js";
 
 export const FORGE_DOTNET_PROVIDER = {
@@ -17,7 +18,15 @@ export const FORGE_DOTNET_PROVIDER = {
   version: "1",
 } as const;
 export class DotnetAnalysisService {
-  constructor(readonly adapter: DotnetAdapter) {}
+  constructor(
+    readonly adapter: ForgeStaticAnalysisPort<
+      ForgeDotnetOperation,
+      DotnetReport
+    >,
+  ) {}
+  inspectAvailability(signal?: AbortSignal) {
+    return this.adapter.inspectAvailability(signal);
+  }
   close(): Promise<void> {
     return this.adapter.close();
   }

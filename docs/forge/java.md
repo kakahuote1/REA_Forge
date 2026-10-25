@@ -1,5 +1,9 @@
 # Static Java integration
 
+Select the operator configuration and data directory through
+[static-provider configuration](static-configuration.md); production does not
+infer either from the checkout location.
+
 Forge uses the installed Recaf core APIs for editing and inspection, standalone
 Vineflower/CFR and Bytecode Viewer library APIs for alternate renderings, and
 the installed JDK's javap for bytecode facts. It does not launch those tools'

@@ -1,5 +1,9 @@
 import { createGpuCodeObjectsService } from "../composition/gpu.js";
 import { createForgeBinaryEditorService } from "../composition/forgeBinaryEditor.js";
+import { FORGE_BINARY_EDITOR_TOOL_CONTRACTS } from "../contracts/forge/binaryEditorToolContracts.js";
+import { FORGE_JAVA_TOOL_CONTRACTS } from "../contracts/forge/javaToolContracts.js";
+import { FORGE_DOTNET_TOOL_CONTRACTS } from "../contracts/forge/dotnetToolContracts.js";
+import { FORGE_CYBERCHEF_TOOL_CONTRACTS } from "../contracts/forge/cyberChefToolContracts.js";
 import { createForgeJavaService } from "../composition/forgeJava.js";
 import { createForgeDotnetService } from "../composition/forgeDotnet.js";
 import { registerForgeDotnetTools } from "./registerForgeDotnetTools.js";
@@ -450,10 +454,10 @@ export const createServer = (
     environment,
     options.apkSignature,
   );
-  const forgeBinaryEditor = createForgeBinaryEditorService();
-  const forgeJava = createForgeJavaService();
-  const forgeDotnet = createForgeDotnetService();
-  const forgeCyberChef = createForgeCyberChefService();
+  const forgeBinaryEditor = createForgeBinaryEditorService(environment);
+  const forgeJava = createForgeJavaService(environment);
+  const forgeDotnet = createForgeDotnetService(environment);
+  const forgeCyberChef = createForgeCyberChefService(environment);
   const packetCapture =
     options.packetCapture ?? createPacketCaptureService(environment);
   const signalRecording =
@@ -782,6 +786,26 @@ export const createServer = (
       apktoolAnalysisAvailability: (signal) =>
         apktool.inspectAvailability(signal),
       jebAnalysisAvailability: (signal) => jeb.inspectAvailability(signal),
+      forgeStaticAvailability: async (signal) => {
+        const [editor, java, dotnet, cyberchef] = await Promise.all([
+          forgeBinaryEditor.inspectAvailability(signal),
+          forgeJava.inspectAvailability(signal),
+          forgeDotnet.inspectAvailability(signal),
+          forgeCyberChef.inspectAvailability(signal),
+        ]);
+        return Object.fromEntries([
+          ...FORGE_BINARY_EDITOR_TOOL_CONTRACTS.map(({ name }) => [
+            name,
+            editor,
+          ]),
+          ...FORGE_JAVA_TOOL_CONTRACTS.map(({ name }) => [name, java]),
+          ...FORGE_DOTNET_TOOL_CONTRACTS.map(({ name }) => [name, dotnet]),
+          ...FORGE_CYBERCHEF_TOOL_CONTRACTS.map(({ name }) => [
+            name,
+            cyberchef,
+          ]),
+        ]);
+      },
       startedAt,
     });
   }

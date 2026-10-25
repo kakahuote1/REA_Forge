@@ -4,11 +4,12 @@ import { analysisInputErrorFromIssues } from "../../domain/inputIssueProjection.
 import { createEvidence, type Evidence } from "../../domain/evidence.js";
 import {
   javaInputSchemas,
+  type JavaReport,
   type ForgeJavaOperation,
 } from "../../domain/forge/javaAnalysis.js";
 import { jsonObjectSchema } from "../../domain/jsonValue.js";
 import { err, type Result } from "../../domain/result.js";
-import type { JavaAdapter } from "../../forge/java/JavaAdapter.js";
+import type { ForgeStaticAnalysisPort } from "./ForgeStaticAnalysisPort.js";
 import { completeProviderEvidence } from "../ProviderOperationExecution.js";
 
 export const FORGE_JAVA_PROVIDER = {
@@ -17,7 +18,12 @@ export const FORGE_JAVA_PROVIDER = {
   version: "1",
 } as const;
 export class JavaAnalysisService {
-  constructor(readonly adapter: JavaAdapter) {}
+  constructor(
+    readonly adapter: ForgeStaticAnalysisPort<ForgeJavaOperation, JavaReport>,
+  ) {}
+  inspectAvailability(signal?: AbortSignal) {
+    return this.adapter.inspectAvailability(signal);
+  }
   close(): Promise<void> {
     return this.adapter.close();
   }

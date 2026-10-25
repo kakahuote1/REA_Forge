@@ -127,10 +127,10 @@ export const createCli = (
   });
 
   registerSetupCommands(cli, logger, environment);
-  registerForgeBinaryEditorCommands(cli, logger);
-  registerForgeJavaCommands(cli, logger);
-  registerForgeDotnetCommands(cli, logger);
-  registerForgeCyberChefCommands(cli, logger);
+  registerForgeBinaryEditorCommands(cli, logger, environment);
+  registerForgeJavaCommands(cli, logger, environment);
+  registerForgeDotnetCommands(cli, logger, environment);
+  registerForgeCyberChefCommands(cli, logger, environment);
   registerReverseEngineeringCommands(cli, logger, environment);
   registerCutterCommands(cli, logger, environment);
   registerCoreAnalysisCommands(

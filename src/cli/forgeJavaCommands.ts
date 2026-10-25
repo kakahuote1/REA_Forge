@@ -13,6 +13,7 @@ import { withCommandCancellation } from "./commandCancellation.js";
 export const registerForgeJavaCommands = (
   cli: CliInstance,
   logger: Logger,
+  environment: Readonly<NodeJS.ProcessEnv> = process.env,
 ): void => {
   for (const contract of FORGE_JAVA_TOOL_CONTRACTS) {
     const command = contract.name.replaceAll("_", "-");
@@ -32,7 +33,7 @@ export const registerForgeJavaCommands = (
                   userMessage: "input must match this typed Java operation",
                 }),
               );
-            const service = createForgeJavaService();
+            const service = createForgeJavaService(environment);
             return finishAnalysisCommand(
               () => service.execute(contract.name, decoded.value, { signal }),
               service,

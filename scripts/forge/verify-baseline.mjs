@@ -12,6 +12,7 @@ import { parseEvidence } from "../../dist/domain/evidence.js";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
 const local = join(root, ".forge-local");
+const requireForgeReadiness = process.argv.includes("--forge-readiness");
 const execute = promisify(execFile);
 const evidenceRoot = join(local, "evidence");
 await mkdir(join(local, "tmp"), { recursive: true });
@@ -39,11 +40,24 @@ const environment = Object.fromEntries(
     TURBO_TELEMETRY_DISABLED: "1",
   }).filter(([, value]) => typeof value === "string"),
 );
+if (requireForgeReadiness) {
+  assert.ok(environment.REA_FORGE_STATIC_CONFIG);
+  const selectedConfiguration = join(
+    fixtureRoot,
+    "explicit-static-config.json",
+  );
+  await writeFile(
+    selectedConfiguration,
+    await readFile(environment.REA_FORGE_STATIC_CONFIG),
+  );
+  environment.REA_FORGE_STATIC_CONFIG = selectedConfiguration;
+}
 const entrypoint = join(root, "scripts", "rea.mjs");
 const client = new Client({ name: "rea-forge-baseline", version: "1" });
 const transport = new StdioClientTransport({
   command: process.execPath,
   args: [entrypoint, "mcp"],
+  cwd: requireForgeReadiness ? fixtureRoot : root,
   env: environment,
   stderr: "pipe",
 });
@@ -62,7 +76,7 @@ try {
     process.execPath,
     [entrypoint, "inspect-artifact", fixture, "--format", "json"],
     {
-      cwd: root,
+      cwd: requireForgeReadiness ? fixtureRoot : root,
       env: environment,
       windowsHide: true,
       timeout: 30_000,
@@ -99,8 +113,67 @@ try {
     assert.equal(typeof text, "string");
     return JSON.parse(text);
   };
-  await call("binary_session", {});
+  const initialStatus = await call("binary_session", {});
   report.checks.target_free_session_status = true;
+  if (requireForgeReadiness) {
+    assert.ok(environment.REA_FORGE_STATIC_CONFIG);
+    assert.ok(environment.REA_FORGE_DATA_ROOT);
+    const expected = catalog.filter(({ name }) => name.startsWith("forge_"));
+    assert.equal(expected.length, 27);
+    const groups = initialStatus.result.tool_availability.groups;
+    for (const { name } of expected) {
+      const observed = groups.find((group) => group.names.includes(name));
+      assert.equal(
+        observed?.available,
+        true,
+        `${name}: ${JSON.stringify(observed)}`,
+      );
+    }
+    assert.equal(initialStatus.result.open, false);
+    report.checks.all_forge_operations_ready_without_open_binary = true;
+    report.checks.external_configuration_and_independent_working_directory = true;
+    const snapshot = await readFile(environment.REA_FORGE_STATIC_CONFIG);
+    const withoutJava = JSON.parse(
+      snapshot.toString("utf8").replace(/^\uFEFF/u, ""),
+    );
+    delete withoutJava.java;
+    try {
+      await writeFile(
+        environment.REA_FORGE_STATIC_CONFIG,
+        JSON.stringify(withoutJava),
+      );
+      const partial = await call("binary_session", {});
+      for (const { name } of expected) {
+        const observed = partial.result.tool_availability.groups.find((group) =>
+          group.names.includes(name),
+        );
+        assert.equal(observed?.available, !name.includes("java"), name);
+        assert.notEqual(observed?.reason, "target_required");
+      }
+      report.checks.missing_java_does_not_disable_peer_families = true;
+      await writeFile(environment.REA_FORGE_STATIC_CONFIG, "{");
+      const malformed = await call("binary_session", {});
+      for (const { name } of expected)
+        assert.equal(
+          malformed.result.tool_availability.groups.find((group) =>
+            group.names.includes(name),
+          )?.available,
+          false,
+        );
+      report.checks.malformed_optional_configuration_does_not_break_session_status = true;
+    } finally {
+      await writeFile(environment.REA_FORGE_STATIC_CONFIG, snapshot);
+    }
+    const restored = await call("binary_session", {});
+    for (const { name } of expected)
+      assert.equal(
+        restored.result.tool_availability.groups.find((group) =>
+          group.names.includes(name),
+        )?.available,
+        true,
+      );
+    report.checks.configuration_repair_recovers_on_the_same_connection = true;
+  }
   await call("open_binary", { path: fixture });
   const inspected = parseEvidence(await call("inspect_artifact", {}));
   assert.equal(inspected.subject?.digest.sha256, originalHash);

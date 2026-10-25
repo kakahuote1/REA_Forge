@@ -52,7 +52,7 @@ const contract = <Name extends ForgeJavaOperation>(name: Name) =>
   ({
     name,
     ...toolContractMetadata(name),
-    kind: "artifact-provider",
+    kind: "forge-static-provider",
     description: descriptions[name],
     inputSchema: javaInputSchemas[name],
     outputSchema: evidenceResultOf(javaReportSchema),

@@ -23,6 +23,9 @@ import { CURRENT_ENTRYPOINT_PATH } from "../process/CurrentEntrypointPath.js";
 
 /** Provider-owned live probes used by session discovery. */
 export interface SessionAvailabilityProbes {
+  readonly forgeStaticAvailability?: (
+    signal: AbortSignal,
+  ) => Promise<Readonly<Record<string, ProviderAvailability>>>;
   readonly androidAnalysisAvailability: (
     signal: AbortSignal,
   ) => Promise<ProviderAvailability>;
@@ -58,6 +61,9 @@ const probeSessionAvailability = (
   readonly apktool: ProviderAvailability | undefined;
   readonly jeb: JebAnalysisAvailability | undefined;
   readonly evmLimiter: ProviderAvailability | undefined;
+  readonly forgeStatic:
+    | Readonly<Record<string, ProviderAvailability>>
+    | undefined;
 }> =>
   Promise.all([
     probes.androidAnalysisAvailability(signal),
@@ -65,12 +71,14 @@ const probeSessionAvailability = (
     probes.apktoolAnalysisAvailability?.(signal) ?? undefined,
     probes.jebAnalysisAvailability?.(signal) ?? undefined,
     probes.evmLimiterAvailability?.(signal) ?? undefined,
-  ] as const).then(([android, adb, apktool, jeb, evmLimiter]) => ({
+    probes.forgeStaticAvailability?.(signal) ?? undefined,
+  ] as const).then(([android, adb, apktool, jeb, evmLimiter, forgeStatic]) => ({
     android,
     adb,
     apktool,
     jeb,
     evmLimiter,
+    forgeStatic,
   }));
 
 /** Register the read-only provider and target status operation. */
@@ -106,6 +114,9 @@ export const registerSessionStatusTool = (
         {
           ...availabilityPolicy(),
           androidAnalysisAvailability: availabilityResults.android,
+          ...(availabilityResults.forgeStatic === undefined
+            ? {}
+            : { forgeStaticAvailability: availabilityResults.forgeStatic }),
           ...(availabilityResults.adb === undefined
             ? {}
             : { adbAnalysisAvailability: availabilityResults.adb }),

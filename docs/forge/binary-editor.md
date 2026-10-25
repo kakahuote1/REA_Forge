@@ -11,6 +11,10 @@ use `-noui -nowarnings`. Optional discovery starts neither Python nor 010.
 
 ## Local configuration
 
+Select configuration and data explicitly as described in
+[static-provider configuration](static-configuration.md). The private file
+below is an example location, not a production lookup default.
+
 Install a licensed 010 Editor and Python separately. Create the ignored file
 `.forge-local/config/tools.json`, using actual absolute paths and executable
 SHA-256 rather than the illustrative values below:
