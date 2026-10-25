@@ -10,10 +10,10 @@ import { ArtifactReaderFailure } from "../artifacts/ArtifactReader.js";
 import { ConfigurationError } from "../domain/configurationErrors.js";
 import { PRODUCT_IDENTITY } from "../identity.js";
 import {
-  invokingPackageRunner,
   packageRunnerRegistrationCommand,
   type PackageRunner,
 } from "./ClientRegistrationIdentity.js";
+import { forgeLocalCommand } from "./ForgeLocalLaunch.js";
 import {
   SUPPORTED_NODE_VERSION_PROSE,
   supportsNodeVersion,
@@ -62,7 +62,6 @@ import type {
   SetupProviderEnvironment,
 } from "./SetupTypes.js";
 import type { DoctorScope } from "./Doctor.js";
-import { CURRENT_ENTRYPOINT_PATH } from "../process/CurrentEntrypointPath.js";
 import { analysisProviderSelectorSchema } from "../contracts/providerSelection.js";
 
 /** Resolve the executable and arguments used in a managed MCP registration. */
@@ -88,11 +87,8 @@ const setupRegistration = (
   homeDirectory: string,
   environment: Readonly<NodeJS.ProcessEnv>,
 ): Pick<SetupHost, "registrationCommand" | "registrationCommandBlocker"> => {
-  const registrationCommand = setupRegistrationCommand(
-    platform,
-    invokingPackageRunner(environment, platform),
-    CURRENT_ENTRYPOINT_PATH,
-  );
+  // Keep upstream helper semantics; Forge's production composition is local-only.
+  const registrationCommand = forgeLocalCommand(["mcp"]);
   const registrationCommandBlocker =
     registrationCommand.length === 0
       ? "REA could not determine the current executable entrypoint. Run setup through the installed REA CLI or a supported package runner before configuring clients."

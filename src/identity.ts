@@ -4,7 +4,8 @@
  * the npm package or executable exposed in package.json.
  */
 export const PRODUCT_IDENTITY = {
-  displayName: "REA",
+  displayName: "REA Forge",
+  distribution: "forge-local",
   packageName: PACKAGE_METADATA.name,
   packageSpecifier: `${PACKAGE_METADATA.name}@latest`,
   registrationPackageSpecifier: `${PACKAGE_METADATA.name}@${PACKAGE_METADATA.version}`,

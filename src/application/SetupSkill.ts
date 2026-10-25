@@ -18,6 +18,7 @@ import {
 } from "./RegularFileRead.js";
 import { clientSkillDirectories } from "./SupportedClients.js";
 import { preserveCurrentRecoveryBackup } from "./SetupRecoveryBackup.js";
+import { bindForgeLocalSkill } from "./ForgeLocalLaunch.js";
 
 export const MANAGED_SKILL_FILES = [
   "SKILL.md",
@@ -27,6 +28,9 @@ export const MANAGED_SKILL_FILES = [
   "references/android-applications.md",
   "references/runtime-observation.md",
   "references/evidence-workflows.md",
+  "references/forge-local.md",
+  "references/forge-static-tools.md",
+  "references/shared-ownership.md",
 ] as const;
 
 export const isManagedSkillManifest = (content: string): boolean =>
@@ -79,7 +83,7 @@ const canonicalSkillContent = (relativePath: string): Promise<string> =>
       import.meta.url,
     ),
     "utf8",
-  );
+  ).then(bindForgeLocalSkill);
 
 export interface SkillInstallFileOperations {
   readonly mkdir: (path: string) => Promise<void>;

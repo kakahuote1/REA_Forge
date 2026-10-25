@@ -24,8 +24,10 @@ import {
   installCanonicalSkill,
   readInstalledSkillIdentity,
   skillDestinations,
+  MANAGED_SKILL_FILES,
   type SkillInstallFileOperations,
 } from "../../../src/application/SetupSkill.js";
+import { bindForgeLocalSkill } from "../../../src/application/ForgeLocalLaunch.js";
 import {
   runDoctor,
   systemDoctorHost,
@@ -578,6 +580,8 @@ describe("canonical skill transaction", () => {
       "android-applications.md",
       "runtime-observation.md",
       "evidence-workflows.md",
+      "forge-static-tools.md",
+      "shared-ownership.md",
     ]) {
       const installed = await readFile(
         join(dirname(destination), "references", reference),
@@ -620,26 +624,29 @@ describe("canonical skill transaction", () => {
     expect(await skillReferenceIssues(dirname(destination))).toEqual([]);
   });
 
-  it("binds portable conformance to the generated skill bytes that setup installs", async () => {
+  it("binds portable instructions and verifies the separate machine-local launcher binding", async () => {
     const home = await createTestTempDirectory("rea-skill-commitment-");
     expect(await installCanonicalSkill(home)).toMatchObject({
       ok: true,
       value: "installed",
     });
-    const paths = [
-      "SKILL.md",
-      "references/android-applications.md",
-      "references/connection-and-recovery.md",
-      "references/evidence-workflows.md",
-      "references/javascript-applications.md",
-      "references/native-and-artifacts.md",
-      "references/runtime-observation.md",
-    ];
+    const paths = [...MANAGED_SKILL_FILES].sort();
     const records = await Promise.all(
       paths.map(async (path) => {
-        const bytes = await readFile(
+        const installed = await readFile(
           join(home, ".agents/skills/reverse-engineer-anything", path),
+          "utf8",
         );
+        const template = await readFile(
+          new URL(
+            `../../../skills/reverse-engineer-anything/${path}`,
+            import.meta.url,
+          ),
+          "utf8",
+        );
+        expect(installed).toBe(bindForgeLocalSkill(template));
+        // Portable conformance commits to templates; doctor compares bound bytes.
+        const bytes = Buffer.from(template, "utf8");
         return `${path}\0${createHash("sha256").update(bytes).digest("hex")}\n`;
       }),
     );

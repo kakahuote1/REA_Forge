@@ -134,7 +134,13 @@ writing. Managed policy can constrain client settings. Consult the
 for the installed client's supported settings. This is an optional recovery
 choice, not a prerequisite for every REA task.
 
-## Continue through an installed CLI
+## Continue through the bound local CLI
+
+In Forge, `rea` throughout this guide means the exact prefix in
+[the installed local launcher binding](forge-local.md). Do not substitute
+a PATH-discovered copy or an npm package. Use its `doctor`, `setup --dry-run`
+and `mcp doctor` on the same build. A registered command is not proof that the
+current client has connected; compare the live catalog and server path.
 
 Check the command environment only if the launcher fails:
 

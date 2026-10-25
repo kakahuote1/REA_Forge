@@ -1,5 +1,33 @@
 # Verified downstream scope
 
+## Local distribution and bundled skill, 2026-10-25
+
+Production setup now binds the public local launcher and exact Node executable.
+Doctor distinguishes this local distribution from an upstream npm registration;
+the live server exposes `forge-local` alongside its path/version/catalog identity.
+Skill 45-forge.1 carries ten managed files, including local launcher, static-tool
+selection and shared-ownership references. Generated templates remain portable;
+installation and doctor additionally verify the machine-local launcher binding.
+
+The focused package finished with 67 passing cases and four platform-conditioned
+skips. Two initial failures were repaired: a fixture still asserting npm startup
+and asymmetric path normalization in the existing Windows identity comparison.
+Only those two branches were rerun, and both passed. Typechecking, eight selected
+module boundaries, skill validation, generation checks and the final build passed.
+Targeted lint has no errors but retains style/complexity/size warnings.
+
+The actual CLI/stdio MCP startup acceptance passed in 5.485 seconds, including
+independent cwd/config, all 27 target-free static entries, missing-peer isolation,
+same-connection recovery, local launcher identity and an isolated Codex setup
+dry-run that produced no writes. Actual CLI setup/doctor and skill installation
+were tested only in owned temporary homes, including backup/readback/idempotence
+and binding drift. The static engines were not rerun after unchanged core logic.
+Their current receipts in the next section remain the engine evidence.
+
+No daily client activation, GUI, device, guest, proxy or capture was changed.
+Shared-ownership instructions do not replace the pending execution boundary or
+certify future persistent-service integrations. See [local distribution](local-distribution.md).
+
 ## Native configuration and discovery, 2026-10-25
 
 The four existing static families now receive explicit operator configuration

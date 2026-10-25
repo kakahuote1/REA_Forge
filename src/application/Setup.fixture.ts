@@ -225,6 +225,7 @@ export class FakeSetupHost implements SetupHost {
         : { providerInspections: this.providerInspections }),
       checks,
       identity: {
+        distribution: PRODUCT_IDENTITY.distribution,
         cli_package_version: PRODUCT_IDENTITY.packageVersion,
         expected_skill_version: PRODUCT_IDENTITY.skillVersion,
         sdk: SDK_IDENTITY,

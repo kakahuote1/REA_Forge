@@ -47,7 +47,7 @@ async function fixture(eol = "\n") {
       [join(root, "scripts/generate-skill-metadata.mjs"), ...args],
       { cwd: root },
     );
-  return { sourceRoot, outputRoot, identity, generate };
+  return { root, sourceRoot, outputRoot, identity, generate };
 }
 
 it.each(["\n", "\r\n"])(
@@ -141,5 +141,20 @@ it("rejects catalog-dependent metadata in the authored source", async () => {
     stderr: expect.stringContaining(
       "Catalog metadata belongs in the generated skill",
     ),
+  });
+});
+
+it("rejects an upstream npm recovery command in any local Forge reference", async () => {
+  const f = await fixture();
+  await writeFile(
+    join(f.sourceRoot, "references/guide.md"),
+    "Run npx -y rea-agents@latest doctor\n",
+  );
+  await writeFile(
+    join(f.root, "dist/identity.js"),
+    'export const PRODUCT_IDENTITY = { distribution: "forge-local", packageSpecifier: "rea-agents@latest", registrationPackageSpecifier: "rea-agents@6.2.0" };\n',
+  );
+  await expect(f.generate()).rejects.toMatchObject({
+    stderr: expect.stringContaining("Local Forge skill must not recover"),
   });
 });

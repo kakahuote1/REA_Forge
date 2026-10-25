@@ -2,10 +2,16 @@
 name: reverse-engineer-anything
 description: Reverse engineer native, managed, Electron/JavaScript, packaged, firmware, and browser targets with REA. Use shipped-artifact or requested runtime evidence to explain features, compare versions, decompile code, or guide a reconstruction. Skip REA for ordinary source-repository architecture analysis.
 metadata:
-  version: "44"
+  version: "45-forge.1"
 ---
 
-# REA
+# REA Forge
+
+This is the local Forge distribution. Before a CLI, setup or doctor recovery,
+read [the installed local launcher binding](references/forge-local.md).
+Every `rea` command below means that exact Node/launcher prefix, not a PATH
+lookup or the official npm package. Use the connected tool catalog as the
+authority for availability; configuration presence is not an engine execution test.
 
 Use REA when a claim depends on a shipped binary or package, decompilation,
 passive application runtime evidence, or comparison with
@@ -33,9 +39,8 @@ availability have different remedies; avoid repeating setup for all of them.
 If the host times out without a REA result, do not repeat the unchanged call or
 assume work stopped. Read the recovery guide's deadline distinction before retrying.
 
-1. Diagnose without changing REA or client configuration. `npx` may download
-   the package and write to npm's cache. For Codex, run
-   `npx -y rea-agents@latest doctor --client codex --json`. Substitute the current
+1. Diagnose without changing REA or client configuration. For Codex, run
+   `rea doctor --client codex --json` using the local launcher binding. Substitute the current
    supported client: `claude_code`, `claude_desktop`, `codex`, `cursor`,
    `gemini_cli`, `windsurf`, `devin`, `opencode`, `antigravity`, `copilot_cli`,
    `commandcode`, `vscode`, `grok_build`, `omp`, or `grok_bot`. `grok_bot` has no local
@@ -49,12 +54,12 @@ assume work stopped. Read the recovery guide's deadline distinction before retry
    that provider: static JavaScript inspection needs neither Hopper nor Ghidra,
    and Android inspection has separate bring-your-own JADX/Java prerequisites.
 3. For a configuration repair, prepare the read-only plan:
-   `npx -y rea-agents@latest setup --client codex --dry-run --json`.
+   `rea setup --client codex --dry-run --json`.
    Use the current client's ID, show its exact proposed paths, backups, and
    changes, and obtain approval before setup writes configuration or installs
    Hopper. Setup normally installs the matching bundled skill too; include that
    replacement in the reviewed plan. After approval, apply the same scope with
-   `npx -y rea-agents@latest setup --client codex --yes`. Add `--install-hopper`
+   `rea setup --client codex --yes`. Add `--install-hopper`
    only if that separate installation was needed and explicitly approved.
 4. Restart/reconnect the affected agent. Verify that REA tools actually appear
    in the session, then resume the original investigation. If they remain
@@ -64,26 +69,33 @@ REA setup never installs or upgrades Node.js, npm, Homebrew, Java, Ghidra, IDA,
 JADX, Kuna, Binwalk, or Unblob. Use existing prerequisites; do not install unrelated
 software to repair
 MCP registration. For an unsupported client, use manual stdio registration
-with a version-pinned `rea-agents` package or continue through the CLI.
+with the exact local Node/launcher arguments or continue through the CLI.
 
 A concrete CLI fallback for an operator-supplied JavaScript tree or ASAR is:
 
 ```bash
-npx -y rea-agents@latest analyze-javascript-application /absolute/path/to/app --json
+rea analyze-javascript-application /absolute/path/to/app --json
 ```
 
 No MCP registration or native engine is required. Read the returned Evidence,
 graph, limitations, and unknowns with the same care as an MCP result; the CLI
 returns the Evidence record directly. This fallback does not establish that
 MCP is configured. Native CLI tasks still require their selected engine.
-Prefer an existing `rea` CLI. When none is installed and REA package acquisition
-is within the authorized scope, use `npx -y rea-agents@latest` in its place.
+Use the installed local launcher binding for CLI fallback. If that build is
+missing, report the exact missing path rather than acquiring another distribution.
 Configuration repair starts with a read-only setup plan; show paths, backups and
 skill replacement before applying authorized changes. Preserve existing approval
 and target-execution boundaries. REA setup never installs or upgrades unrelated
 software, including Node.js, npm, Homebrew, Java, Ghidra, IDA, JADX, Kuna, Binwalk or Unblob.
 
 ## Route the target first
+
+For the additional target-free 010 Editor, Java, dnSpy and offline CyberChef
+tools, read [Forge static tools](references/forge-static-tools.md). For a GUI,
+database or persistent service shared with the operator, first apply
+[shared ownership](references/shared-ownership.md). Guest/dynamic extensions
+are not implied by these static tools; only use them when actually advertised
+and configured for the explicitly selected guest/device.
 
 Choose the first tool from the target the user supplied. Use `open_binary` for
 active-target native or archive workflows; target-free tools take their own

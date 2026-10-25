@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { expect } from "vitest";
 import { z } from "zod";
-import { packageRunnerRegistrationCommand } from "../../../src/application/ClientRegistrationIdentity.js";
+import { forgeLocalCommand } from "../../../src/application/ForgeLocalLaunch.js";
 import { createTestTempDirectory } from "../../fixtures/temporaryDirectory.js";
 import { cliTest } from "../../support/cli/cliFixture.js";
 
@@ -18,7 +18,7 @@ for (const { runner, userAgent } of [
   { runner: "bunx", userAgent: "bun/1.4.2 npm/? node/v26.3.0 linux x64" },
 ] as const) {
   cliTest(
-    `${runner} setup registers the pinned ${runner} launcher instead of its cache`,
+    `${runner} environment still registers the local Forge launcher`,
     async ({ cli }) => {
       const home = await createTestTempDirectory("rea-package-runner-");
       const run = (arguments_: readonly string[]) =>
@@ -49,9 +49,7 @@ for (const { runner, userAgent } of [
         ),
       );
       const { command, args } = configuration.mcpServers.rea;
-      expect([command, ...args]).toEqual(
-        packageRunnerRegistrationCommand(runner, process.platform),
-      );
+      expect([command, ...args]).toEqual(forgeLocalCommand(["mcp"]));
       const doctor = await run(["doctor", "--client", "omp", "--json"]);
       expect(doctor.json).toMatchObject({
         identity: { registrations: [{ client: "omp", state: "aligned" }] },

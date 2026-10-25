@@ -49,7 +49,7 @@ export const createServerIdentity = (input: {
   if (
     input.expected?.server_path !== undefined &&
     serverPath !== undefined &&
-    resolve(input.expected.server_path) !== serverPath
+    resolve(input.expected.server_path) !== resolve(serverPath)
   )
     reasons.push("registration_path_mismatch");
   const observedExpectation =
@@ -63,6 +63,7 @@ export const createServerIdentity = (input: {
       version: PRODUCT_IDENTITY.packageVersion,
       root_path: packageRoot(),
       build_commit: process.env.REA_BUILD_COMMIT ?? null,
+      distribution: PRODUCT_IDENTITY.distribution,
     },
     server: {
       name: PRODUCT_IDENTITY.mcpServerKey,

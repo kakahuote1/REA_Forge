@@ -105,6 +105,8 @@ const registrationSchema = z
   .passthrough();
 
 interface ClientRegistrationReadOptions {
+  /** Production Forge registrations must select this local build, not npm. */
+  readonly requireLocalEntrypoint?: boolean;
   readonly platform?: NodeJS.Platform;
   readonly environment?: NodeJS.ProcessEnv;
   readonly resources?: ArtifactResourceScope;
@@ -304,6 +306,7 @@ export const readClientRegistrationInspections = async (
             registrationEnvironment.value.values,
             options.platform,
           ).REA_MCP_INPUT_SCHEMA_PROFILE !== undefined,
+        requireLocalEntrypoint: options.requireLocalEntrypoint === true,
       });
       record(
         configuredStatus(
@@ -376,12 +379,14 @@ const registrationAligned = ({
   currentCommandPath,
   platform,
   kimiInputSchemaProfileSelected,
+  requireLocalEntrypoint,
 }: {
   readonly registration: z.output<typeof registrationSchema>;
   readonly client: SetupClient;
   readonly currentCommandPath: string | undefined;
   readonly platform: NodeJS.Platform;
   readonly kimiInputSchemaProfileSelected: boolean;
+  readonly requireLocalEntrypoint: boolean;
 }): "aligned" | "stale" | "unknown" => {
   const command = [registration.command, ...registration.args];
   const identity = classifyClientRegistrationCommand(
@@ -390,6 +395,11 @@ const registrationAligned = ({
   );
   if (identity === "unknown") return "unknown";
   if (identity === "foreign") return "stale";
+  if (
+    requireLocalEntrypoint &&
+    clientRegistrationPackageReference(command) !== undefined
+  )
+    return "stale";
   if (
     client.name === "grok_build" &&
     registration.startup_timeout_sec !==

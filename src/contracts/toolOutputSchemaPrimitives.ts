@@ -507,6 +507,7 @@ export const sessionProvider = z
         version: z.string(),
         root_path: z.string(),
         build_commit: z.string().nullable(),
+        distribution: z.literal("forge-local"),
       }),
       server: z.object({
         name: z.string(),

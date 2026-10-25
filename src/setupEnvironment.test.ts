@@ -16,9 +16,9 @@ import { createSystemDoctorHost } from "./doctorRuntime.js";
 import { PRODUCT_IDENTITY } from "./identity.js";
 import {
   invokingPackageRunner,
-  packageRunnerRegistrationCommand,
   withoutPackageRunnerIdentity,
 } from "./application/ClientRegistrationIdentity.js";
+import { forgeLocalCommand } from "./application/ForgeLocalLaunch.js";
 import { snapshotEnvironment } from "./process/snapshotEnvironment.js";
 
 afterEach(() => vi.unstubAllEnvs());
@@ -63,9 +63,7 @@ it("plans setup and uninstall against selected home and client overrides", async
         }),
       ]),
     );
-    expect(host.registrationCommand).toContain(
-      PRODUCT_IDENTITY.registrationPackageSpecifier,
-    );
+    expect(host.registrationCommand).toEqual(forgeLocalCommand(["mcp"]));
     const clients = await systemUninstallHost(
       environment.HOME,
       undefined,
@@ -256,7 +254,7 @@ it.each([
   { userAgent: "npm/10.9.0 node/v24.11.0 win32 x64", runner: "npx" },
   { userAgent: "bun/1.4.2 npm/? node/v26.3.0 win32 x64", runner: "bunx" },
 ] as const)(
-  "registers the $runner launcher from a Windows CLI environment snapshot",
+  "keeps Forge local when a $runner environment snapshot is inherited",
   ({ userAgent, runner }) => {
     // The CLI snapshot canonicalizes Windows variable names to upper case.
     const environment = snapshotEnvironment(
@@ -269,14 +267,14 @@ it.each([
         createDoctorHostFixture({ platform: "win32" }),
         environment,
       ).registrationCommand,
-    ).toEqual(packageRunnerRegistrationCommand(runner, "win32"));
+    ).toEqual(forgeLocalCommand(["mcp"]));
     expect(withoutPackageRunnerIdentity(environment, "win32")).toEqual({
       NPM_CONFIG_USER_AGENT: userAgent,
     });
   },
 );
 
-it("registers the selected Windows package runner after canonicalizing environment aliases", async () => {
+it("preserves local Forge registration after canonicalizing environment aliases", async () => {
   const environment = snapshotEnvironment(
     {
       NPM_COMMAND: "run",
@@ -296,9 +294,7 @@ it("registers the selected Windows package runner after canonicalizing environme
     environment,
   );
   try {
-    expect(host.registrationCommand).toEqual(
-      packageRunnerRegistrationCommand("npx", "win32"),
-    );
+    expect(host.registrationCommand).toEqual(forgeLocalCommand(["mcp"]));
   } finally {
     await host.close?.();
   }

@@ -44,16 +44,24 @@ const paths = await filePaths(sourceRoot);
 if (!check) await rm(outputRoot, { recursive: true, force: true });
 for (const relativePath of paths) {
   const path = join(outputRoot, relativePath);
+  const content =
+    relativePath === "SKILL.md"
+      ? source
+      : (await readFile(join(sourceRoot, relativePath), "utf8")).replaceAll(
+          "\r\n",
+          "\n",
+        );
+  if (
+    PRODUCT_IDENTITY.distribution === "forge-local" &&
+    /\b(?:npx\s+(?:-y\s+)?|bunx\s+)rea-agents/u.test(content)
+  )
+    throw new Error(
+      `Local Forge skill must not recover through the upstream npm package: ${relativePath}`,
+    );
   if (!check) await mkdir(dirname(path), { recursive: true });
   await ensureGeneratedFile({
     path,
-    source:
-      relativePath === "SKILL.md"
-        ? source
-        : (await readFile(join(sourceRoot, relativePath), "utf8")).replaceAll(
-            "\r\n",
-            "\n",
-          ),
+    source: content,
     check,
     generateCommand: "npm run docs:generate",
   });

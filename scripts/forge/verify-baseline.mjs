@@ -1,7 +1,14 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import {
+  mkdir,
+  mkdtemp,
+  readFile,
+  readdir,
+  rm,
+  writeFile,
+} from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
@@ -173,6 +180,53 @@ try {
         true,
       );
     report.checks.configuration_repair_recovers_on_the_same_connection = true;
+    assert.equal(
+      restored.result.server_identity.package.distribution,
+      "forge-local",
+    );
+    assert.equal(
+      restored.result.server_identity.server.command_path,
+      entrypoint,
+    );
+    report.checks.local_distribution_and_public_launcher_identity = true;
+    const setupHome = join(fixtureRoot, "setup-home");
+    await mkdir(setupHome);
+    const dryRun = await execute(
+      process.execPath,
+      [entrypoint, "setup", "--client", "codex", "--dry-run", "--json"],
+      {
+        cwd: fixtureRoot,
+        env: {
+          ...environment,
+          HOME: setupHome,
+          USERPROFILE: setupHome,
+          CODEX_HOME: join(setupHome, ".codex"),
+          APPDATA: join(setupHome, "roaming"),
+          LOCALAPPDATA: join(setupHome, "local"),
+          npm_command: "exec",
+        },
+        windowsHide: true,
+        timeout: 30_000,
+        maxBuffer: 4 * 1024 * 1024,
+      },
+    );
+    const setupPlan = JSON.parse(dryRun.stdout);
+    assert.equal(setupPlan.status, "planned");
+    assert.ok(
+      setupPlan.plannedActions.some(
+        (action) => action.id === "configure_client:codex",
+      ),
+    );
+    assert.ok(
+      setupPlan.plannedActions.some((action) => action.id === "install_skill"),
+    );
+    assert.ok(
+      setupPlan.plannedActions.every((action) =>
+        action.target.startsWith(setupHome),
+      ),
+    );
+    assert.deepEqual(await readdir(setupHome), []);
+    report.checks.scoped_codex_setup_dry_run_has_no_writes = true;
   }
   await call("open_binary", { path: fixture });
   const inspected = parseEvidence(await call("inspect_artifact", {}));

@@ -175,6 +175,7 @@ export type DoctorSkillState =
   | "unknown";
 
 interface DoctorIdentity {
+  readonly distribution: typeof PRODUCT_IDENTITY.distribution;
   readonly cli_package_version: string;
   readonly expected_skill_version: string;
   readonly sdk: typeof SDK_IDENTITY;
@@ -387,6 +388,7 @@ const collectDoctorIdentity = async (
         .map(registrationCheck),
     ],
     value: {
+      distribution: PRODUCT_IDENTITY.distribution,
       cli_package_version: PRODUCT_IDENTITY.packageVersion,
       expected_skill_version: PRODUCT_IDENTITY.skillVersion,
       sdk: SDK_IDENTITY,
@@ -724,6 +726,7 @@ export const systemDoctorHost = (
     },
     clientRegistrations: () =>
       readClientRegistrationStatuses(homeDirectory, undefined, {
+        requireLocalEntrypoint: true,
         platform,
         environment,
         resources,
