@@ -5,6 +5,7 @@ import { FORGE_DOTNET_TOOL_CONTRACTS } from "./forge/dotnetToolContracts.js";
 import { FORGE_ENRICHMENT_TOOL_CONTRACTS } from "./forge/nativeEnrichmentToolContracts.js";
 import { FORGE_TRAFFIC_TOOL_CONTRACTS } from "./forge/offlineTrafficToolContracts.js";
 import { FORGE_PYTHON_TOOL_CONTRACTS } from "./forge/pythonBytecodeToolContracts.js";
+import { FORGE_ANDROID_BUILD_TOOL_CONTRACTS } from "./forge/androidBuildToolContracts.js";
 import { FORGE_CYBERCHEF_TOOL_CONTRACTS } from "./forge/cyberChefToolContracts.js";
 import { CAPTURE_TOOL_CONTRACTS } from "./captures/captureToolContracts.js";
 import { SIGNAL_TOOL_CONTRACTS } from "./signals/signalToolContracts.js";
@@ -100,6 +101,7 @@ export const TOOL_CONTRACTS = [
   ...FORGE_ENRICHMENT_TOOL_CONTRACTS,
   ...FORGE_TRAFFIC_TOOL_CONTRACTS,
   ...FORGE_PYTHON_TOOL_CONTRACTS,
+  ...FORGE_ANDROID_BUILD_TOOL_CONTRACTS,
   ...FORGE_CYBERCHEF_TOOL_CONTRACTS,
 ] as const;
 

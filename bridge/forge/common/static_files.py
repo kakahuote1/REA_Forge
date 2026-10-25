@@ -103,7 +103,7 @@ def stage_input(selected: dict, source_path: str, workspace: Path, *, leaf: str,
 
 def run_native(argv: list[str], workspace: Path, *, timeout_ms: int, prefix: str,
                maximum: int = MAX_RESULT, environment_overrides: dict[str, str] | None = None,
-               maximum_timeout_ms: int = 45000) -> tuple[Path, Path, dict]:
+               maximum_timeout_ms: int = 45000, accepted_exit_codes: frozenset[int] = frozenset({0})) -> tuple[Path, Path, dict]:
     """The outer REA job owns this helper and all inherited engine descendants."""
     if isinstance(timeout_ms, bool) or not isinstance(timeout_ms, int) or not 1 <= timeout_ms <= maximum_timeout_ms:
         raise ValueError("invalid static engine deadline")
@@ -111,8 +111,10 @@ def run_native(argv: list[str], workspace: Path, *, timeout_ms: int, prefix: str
         raise ValueError("invalid fixed output prefix")
     stdout_path, stderr_path = workspace / (prefix + ".out"), workspace / (prefix + ".stderr")
     environment = dict(os.environ)
-    for key in ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy", "PYTHONPATH", "PYTHONHOME", "IDADIR", "IDAUSR", "IDAPYTHON_VERSION"):
-        environment.pop(key, None)
+    excluded = {key.casefold() for key in ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "PYTHONPATH", "PYTHONHOME", "IDADIR", "IDAUSR", "IDAPYTHON_VERSION", "JAVA_TOOL_OPTIONS", "JDK_JAVA_OPTIONS", "_JAVA_OPTIONS", "CLASSPATH")}
+    for key in tuple(environment):
+        if key.casefold() in excluded:
+            environment.pop(key)
     command_temp = str(Path(sys.argv[1]).resolve(strict=True).parent)
     environment.update({"NO_PROXY": "*", "no_proxy": "*", "TEMP": command_temp, "TMP": command_temp})
     environment.update(environment_overrides or {})
@@ -136,7 +138,7 @@ def run_native(argv: list[str], workspace: Path, *, timeout_ms: int, prefix: str
             child.wait(timeout=3)
         if failure is not None:
             raise failure
-        if child.returncode != 0:
+        if child.returncode not in accepted_exit_codes:
             raise ValueError("static engine returned nonzero status; bounded diagnostics retained")
     if stdout_path.stat().st_size > maximum or stderr_path.stat().st_size > 256 * 1024:
         raise ValueError("static engine output exceeded its file bound")

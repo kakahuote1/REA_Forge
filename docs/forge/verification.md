@@ -1,5 +1,46 @@
 # Verified downstream scope
 
+## Android static analysis and derived builds, 2026-10-25
+
+Seven added operations reuse the native CLI/MCP/Evidence path. A known-source
+12,691-byte harmless APK was decoded, its application label changed in a new
+project, rebuilt, test-signed, cryptographically verified and decoded again.
+REA's native signature declarations independently matched the certificate.
+Native JADX package/class/method/reference queries and apktool resource reading
+worked against the derived APK. A separate known-answer Smali fixture assembled
+to DEX, disassembled, changed its integer from 42 to 43, reassembled and reread;
+DEX SHA-1/Adler-32 checks passed. No APK was installed or executed.
+
+The group also covers test-key reuse, receipt/edit/key-read rejection,
+unconfigured signing profiles, invalid input, unsigned APK status, an actual
+1 ms native deadline, cancellation/recovery and CLI/MCP readback parity.
+Already-passed artifacts were hash-verified before reusing failed-run
+checkpoints. Initial fixture/selector assertions were corrected without
+repeating successful engines. Windows case-colliding archive names are
+explicitly unsupported by this build path, not evidence of a malformed APK.
+
+Real cleanup testing found upstream JADX engine temporary directories outside
+the existing resource root. JVM temp/home and child TEMP now belong to that
+root. The affected native close/recovery tail passed in 12.749 seconds; its
+test owner non-recursively reclaimed an empty Java prerequisite performance
+directory. Unknown leftovers would still fail the check. The complete earlier
+functional tail passed its checks in 78.285 seconds before reporting that
+cleanup omission; its receipt and failed status remain retained.
+
+The group has 165 unique passing cases (46 service/config/effects, 114 existing
+module/timeout checks and five owned Python boundary cases). The test dependency
+type graph passed in 15.203 seconds. The final affected production build passed
+under its 300-second hard limit, taking 207.641 seconds including orchestration.
+Current stdio startup/config-recovery/scoped setup dry-run passed in 25.315
+seconds: 272 tools, 52 Forge entries. No daily client settings were changed.
+CPU time and peak process-family memory were not measured. Installation belongs
+to G13; see [operation scope](android-build.md).
+
+The Python extraction-to-xdis boundary was separately read through the current
+CLI using an already retained PyInstaller member. Its source hash was unchanged;
+no extraction, target execution or model inference was repeated. G06 modern
+inference remains unverified.
+
 ## Python non-model subset, 2026-10-25
 
 Current real CLI/MCP evidence covers native CPython facts, native PyInstaller

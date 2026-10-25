@@ -51,3 +51,17 @@ pages retained text. The modern `forge_decompile_modern_python` model path is
 still under current Forge acceptance; do not present historical model passes
 as current integration proof. Honor `resource_constraint`; do not automatically
 download models, change the sample or weaken admission to retry it.
+
+For Android, use native `inspect_android_package`, `search_android_classes`,
+`inspect_android_class`, `inspect_android_method` and `trace_android_references`
+for static JADX observations; `decode_android_resources` reads resources.
+Use `forge_prepare_android_project` to retain a copied decoded project,
+`forge_build_android_project` for exact hash-bound edits and rebuilding,
+`forge_disassemble_dex` / `forge_assemble_dex` for selected DEX/Smali transforms,
+and `forge_sign_apk` / `forge_verify_apk` for signing and cryptographic checks.
+Page project files or exact artifact bytes with `forge_read_android_result`.
+Keep the receipt path plus SHA-256 between calls. Test keys are not production
+identities; passwords are operator-configured files, never tool arguments.
+Native `inspect_apk_signature` reports declarations separately from cryptographic
+verification. These static tools do not install or execute APKs; use an explicit
+guest/device workflow for runtime validation. See `docs/forge/android-build.md`.

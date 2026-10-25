@@ -213,6 +213,46 @@ describe("explicit Forge static configuration", () => {
 });
 
 describe("independent native engine readiness", () => {
+  it("keeps Android projects and DEX ready without a signer", async () => {
+    const input = await fixture();
+    const input_roots = [input.inputs];
+    const pin = { path: input.editor, sha256: "a".repeat(64) };
+    await writeFile(
+      input.configurationPath,
+      JSON.stringify({
+        ...input.document,
+        apk_workspace: {
+          input_roots,
+          version: "fixture",
+          java: pin,
+          apktool: pin,
+        },
+        smali: {
+          input_roots,
+          version: "fixture",
+          java: pin,
+          smali: pin,
+          baksmali: pin,
+        },
+        android_results: { input_roots },
+      }),
+    );
+    for (const family of ["apk_workspace", "smali", "android_results"] as const)
+      expect(
+        await inspectForgeStaticConfiguration(
+          family,
+          input.environment,
+          owner(),
+        ),
+      ).toMatchObject({ status: "available" });
+    expect(
+      await inspectForgeStaticConfiguration(
+        "apk_signing",
+        input.environment,
+        owner(),
+      ),
+    ).toMatchObject({ status: "unavailable", code: "not_configured" });
+  });
   it("keeps bytecode inspection and readback present without models", async () => {
     const input = await fixture();
     const input_roots = [input.inputs];

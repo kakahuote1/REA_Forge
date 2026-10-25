@@ -262,9 +262,11 @@ import type { CyberChefReport } from "./forge/cyberChef.js";
 import type { EnrichmentReport } from "./forge/nativeEnrichment.js";
 import type { TrafficReport } from "./forge/offlineTraffic.js";
 import type { PythonBytecodeReport } from "./forge/pythonBytecode.js";
+import type { AndroidBuildReport } from "./forge/androidBuild.js";
 
 /** Provider-neutral evidence collected before a typed analysis failure. */
 export type AnalysisPartialObservation =
+  | AndroidBuildReport
   | PythonBytecodeReport
   | TrafficReport
   | EnrichmentReport

@@ -12,6 +12,8 @@ import { createForgeOfflineTrafficService } from "../composition/forgeOfflineTra
 import { registerForgeOfflineTrafficTools } from "./registerForgeOfflineTrafficTools.js";
 import { createForgePythonBytecodeService } from "../composition/forgePythonBytecode.js";
 import { registerForgePythonBytecodeTools } from "./registerForgePythonBytecodeTools.js";
+import { createForgeAndroidBuildService } from "../composition/forgeAndroidBuild.js";
+import { registerForgeAndroidBuildTools } from "./registerForgeAndroidBuildTools.js";
 import { registerForgeDotnetTools } from "./registerForgeDotnetTools.js";
 import { createForgeCyberChefService } from "../composition/forgeCyberChef.js";
 import { registerForgeCyberChefTools } from "./registerForgeCyberChefTools.js";
@@ -466,6 +468,7 @@ export const createServer = (
   const forgeEnrichment = createForgeNativeEnrichmentService(environment);
   const forgeOfflineTraffic = createForgeOfflineTrafficService(environment);
   const forgePython = createForgePythonBytecodeService(environment);
+  const forgeAndroidBuild = createForgeAndroidBuildService(environment);
   const forgeCyberChef = createForgeCyberChefService(environment);
   const packetCapture =
     options.packetCapture ?? createPacketCaptureService(environment);
@@ -495,6 +498,7 @@ export const createServer = (
       forgeEnrichment.close(),
       forgeOfflineTraffic.close(),
       forgePython.close(),
+      forgeAndroidBuild.close(),
       forgeCyberChef.close(),
       packetCapture.close(),
       signalRecording.close(),
@@ -760,6 +764,13 @@ export const createServer = (
     recordEvidence,
     analysisAdmission,
   );
+  registerForgeAndroidBuildTools(
+    server,
+    forgeAndroidBuild,
+    toolLogger,
+    recordEvidence,
+    analysisAdmission,
+  );
   registerConfiguredAnalysisTools(
     toolContext,
     android,
@@ -828,6 +839,7 @@ export const createServer = (
           enrichment,
           offlineTraffic,
           python,
+          androidBuild,
         ] = await Promise.all([
           forgeBinaryEditor.inspectAvailability(signal),
           forgeJava.inspectAvailability(signal),
@@ -836,11 +848,13 @@ export const createServer = (
           forgeEnrichment.inspectAvailability(signal),
           forgeOfflineTraffic.inspectAvailability(signal),
           forgePython.inspectAvailability(signal),
+          forgeAndroidBuild.inspectAvailability(signal),
         ]);
         return Object.fromEntries([
           ...Object.entries(enrichment),
           ...Object.entries(offlineTraffic),
           ...Object.entries(python),
+          ...Object.entries(androidBuild),
           ...FORGE_BINARY_EDITOR_TOOL_CONTRACTS.map(({ name }) => [
             name,
             editor,

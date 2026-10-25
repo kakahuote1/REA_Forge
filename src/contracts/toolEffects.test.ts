@@ -17,6 +17,15 @@ const EXECUTION_WORDING =
   /\b(?:run|runs|running|launch|launches|launching|execute|executes|executing|execution|start|starts|install|installs|uninstall|uninstalls)\b/iu;
 
 const EXECUTION_WORDING_EXCEPTIONS: Readonly<Record<string, string>> = {
+  forge_build_android_project:
+    "trusted static compiler builds copied files without Android execution",
+  forge_disassemble_dex:
+    "trusted baksmali disassembles DEX without Android execution",
+  forge_assemble_dex:
+    "trusted smali compiler emits DEX without Android execution",
+  forge_sign_apk:
+    "APK signing and verification do not install a CA or mutate a device",
+  forge_verify_apk: "cryptographic APK verification without target execution",
   forge_disassemble_python:
     "trusted xdis reads bytes without target execution or source fallback",
   forge_decompile_legacy_python:

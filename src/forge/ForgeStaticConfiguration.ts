@@ -23,7 +23,11 @@ export type ForgeStaticFamily =
   | "xdis"
   | "python_legacy"
   | "pylingual"
-  | "python_results";
+  | "python_results"
+  | "apk_workspace"
+  | "smali"
+  | "apk_signing"
+  | "android_results";
 export const FORGE_STATIC_CONFIG_SETTING = "REA_FORGE_STATIC_CONFIG";
 export const FORGE_DATA_ROOT_SETTING = "REA_FORGE_DATA_ROOT";
 const MAX_CONFIGURATION_BYTES = 64 * 1024;
@@ -172,6 +176,23 @@ export const inspectForgeStaticConfiguration = async (
     } else if (family === "pcap") {
       const pin = pinSchema.parse(value.tshark);
       await requirePath(pin.path);
+      z.string().min(1).parse(value.version);
+    } else if (
+      family === "apk_workspace" ||
+      family === "smali" ||
+      family === "apk_signing"
+    ) {
+      const names =
+        family === "apk_workspace"
+          ? ["java", "apktool"]
+          : family === "smali"
+            ? ["java", "smali", "baksmali"]
+            : ["java", "keytool", "apksigner"];
+      await Promise.all(
+        names.map(async (name) =>
+          requirePath(pinSchema.parse(value[name]).path),
+        ),
+      );
       z.string().min(1).parse(value.version);
     } else if (family === "xdis" || family === "python_legacy") {
       await requirePath(pinSchema.parse(value.python).path);
