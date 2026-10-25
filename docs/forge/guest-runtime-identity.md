@@ -104,3 +104,32 @@ GUI or configuration change was used. Private receipts retain timings and
 observed identities; CPU and peak process-family memory were not measured.
 This does not certify G11's debugger/target-job lifecycle or daily client
 activation.
+
+## Owned IDA job transport
+
+The next internal port reuses the existing PowerShell worker and independent
+Windows JobObject guard. It can run through the already-authenticated bridge
+without adopting an interactive desktop or creating a daemon. The worker
+verifies the configured headless frontend, staged input and wrapper digests,
+joins containment before launching IDA, and records exact creation timestamps.
+Only owned stop markers are used; caller-selected PIDs cannot be signalled.
+
+Launch is single-shot. A real bridge call completed with empty stdout even
+though its worker and durable launch receipt existed. The port reads that
+exact job's persisted receipt rather than starting another worker. Completion
+requires a matching guard receipt, zero active contained processes, and exact
+worker/guard creation-identity exit observations. Missing receipts, access
+failures and a successful script result alone do not establish cleanup.
+
+The current real probe verified this launch/recovery/containment lifecycle but
+did not execute IDAPython successfully: IDA's SYSTEM context reported an
+unaccepted license agreement and exited before producing the script result.
+The installed interactive agent also lacked the required owned-launch protocol
+and had no logged-in user session. These are current prerequisites, not proof
+that an earlier configured guest still works. No license state was changed or
+GUI opened to pass this check. The installation's automatically loaded optional
+AI plugin also needs a reviewed owned profile before claiming local-only IDA
+analysis. No plugin network transfer was established by this probe.
+
+This internal transport is not yet the public G11 execution/debugger surface.
+It does not confer authority to manage VM snapshots or emulator instances.

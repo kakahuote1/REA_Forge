@@ -65,6 +65,7 @@ const validateFile = (
   )
     throw new Error("File does not belong to the exact bounded guest case");
 };
+export const assertGuestCaseFile = (binding: GuestCaseBinding, file: GuestStagedFile): void => validateFile(binding, file);
 
 /** Every modifying program attributes its direct parent before touching the case. */
 const prefix = (binding: GuestCaseBinding, requireMarker = true): string => {
@@ -100,6 +101,8 @@ ${requireMarker ? `$ownerFile=Join-Path $root 'owner.json'; Assert-PlainPath $ow
 if (![IO.Directory]::Exists($root) -or !(Test-Path -LiteralPath $ownerFile -PathType Leaf) -or (Get-Item -LiteralPath $ownerFile).Length -gt 4096 -or [IO.File]::ReadAllText($ownerFile) -cne $expectedMarker) { throw 'Guest case ownership marker differs or is absent' }` : ""}
 `;
 };
+/** Only shipped guest adapters build programs on this case/bridge attribution. */
+export const guestCaseProgramPrefix = (binding: GuestCaseBinding): string => prefix(binding);
 
 export const allocateCaseProgram = (
   binding: GuestCaseBinding,
