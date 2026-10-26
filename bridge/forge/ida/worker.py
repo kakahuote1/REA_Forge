@@ -11,8 +11,8 @@ import shutil
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from common.paths import CONFIG_PATH, PRIVATE_ROOT
-from common.static_files import bounded_file, identity, pinned, read_json, run_native, sha256_file, stage_input
+from common.paths import PRIVATE_ROOT
+from common.static_files import bounded_file, identity, pinned, read_json, read_operator_configuration, run_native, sha256_file, stage_input
 from ida.host_profile import prepare
 
 WORK = PRIVATE_ROOT / "work" / "ida-static"
@@ -66,7 +66,7 @@ def execute(operation: str, values: dict) -> dict:
         workspace = WORK / secrets.token_hex(16)
         workspace.mkdir(parents=True, exist_ok=False)
         family = "ida_host" if operation in ENGINE_OPERATIONS else "ida_assembly" if operation == "forge_assemble_ida" else "ida_exchange" if operation == "forge_compare_ida_snapshots" else "ida_results"
-        selected = read_json(CONFIG_PATH, 65536)[family]
+        selected = read_operator_configuration()[family]
         document = {"operation": operation, "artifacts": [], "sample_execution": False, "network_used": False}
         if operation in ENGINE_OPERATIONS:
             api = api_source(selected)

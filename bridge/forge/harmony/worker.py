@@ -8,8 +8,8 @@ import secrets
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from common.paths import CONFIG_PATH, PRIVATE_ROOT
-from common.static_files import bounded_file, identity, read_json, sha256_file, stage_input
+from common.paths import PRIVATE_ROOT
+from common.static_files import bounded_file, identity, read_json, read_operator_configuration, sha256_file, stage_input
 from harmony.archive import abc_header, inspect_archive
 from harmony.engines import abc, ark, jadx
 from harmony.signing import sign, verify
@@ -124,7 +124,7 @@ def execute(operation: str, values: dict) -> dict:
             raise ValueError("retained Harmony result identity/owner mismatch")
         document = read_json(full)
     else:
-        selected = read_json(CONFIG_PATH, 65536)[FAMILIES[operation]]
+        selected = read_operator_configuration()[FAMILIES[operation]]
         workspace = WORK / secrets.token_hex(16)
         workspace.mkdir(parents=True, exist_ok=False)
         document = perform(operation, dict(values), selected, workspace)

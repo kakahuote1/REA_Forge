@@ -8,8 +8,8 @@ import sys
 import time
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from common.paths import CONFIG_PATH, PRIVATE_ROOT
-from common.static_files import bounded_file, identity, read_json, sha256_file
+from common.paths import PRIVATE_ROOT
+from common.static_files import bounded_file, identity, read_json, read_operator_configuration, sha256_file
 from system.observations import compare, observe, scan
 
 WORK = PRIVATE_ROOT / "work" / "system-observation"
@@ -41,7 +41,7 @@ def execute(operation: str, values: dict) -> dict:
                         "parents": {"before": before_receipt["snapshot"], "after": after_receipt["snapshot"]}, "atomic": False,
                         "identity_caveat": "Transient thread/handle/address reuse between observations cannot be excluded."}
         else:
-            selected = read_json(CONFIG_PATH, 65536)[FAMILIES[operation]]
+            selected = read_operator_configuration()[FAMILIES[operation]]
             document = scan(selected, values, workspace) if operation == "forge_scan_process" else observe(selected, values, workspace, bound=operation == "forge_observe_process")
         document.update(observed_unix_ns=str(time.time_ns()), operation=operation, target_execution=False, network_io=False)
         snapshot_path = workspace / "snapshot.json"

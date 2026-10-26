@@ -12,8 +12,7 @@ import xml.etree.ElementTree as xml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from common.process_identity import process_start
-from common.paths import CONFIG_PATH
-from common.static_files import identity, pinned, read_json, run_native
+from common.static_files import identity, pinned, read_json, read_operator_configuration, run_native
 
 
 def physical(path: Path, *, directory: bool = False) -> dict:
@@ -35,15 +34,18 @@ def physical(path: Path, *, directory: bool = False) -> dict:
 
 
 def parse_row(line: str) -> dict:
-    match = re.fullmatch(r"([0-9]+),(.*),(-?[0-9]+),(-?[0-9]+),(-?[0-9]+),(-?[0-9]+),(-?[0-9]+)", line)
+    # This pinned LDPlayer9 reports ten fields. Parsing the old seven-field
+    # layout greedily absorbs handles/state into the title and treats DPI as
+    # a VM PID. Bind this producer to its observed/documented layout only.
+    match = re.fullmatch(r"([0-9]+),(.*),(-?[0-9]+),(-?[0-9]+),([01]),(-?[0-9]+),(-?[0-9]+),([0-9]+),([0-9]+),([0-9]+)", line)
     if not match:
         raise ValueError("unrecognized pinned LDPlayer list2 row")
-    index, name, top, bind, started, player, vm = match.groups()
+    index, name, top, bind, started, player, vm, width, height, dpi = match.groups()
     if not name or len(name) > 256 or any(ord(char) < 32 for char in name):
         raise ValueError("LDPlayer display name is invalid")
     return {"index": int(index), "name": name, "androidStarted": int(started) == 1,
             "runtime": {"playerPid": int(player) if int(player) > 0 else None, "vmPid": int(vm) if int(vm) > 0 else None},
-            "runtimeState": int(started)}
+            "runtimeState": int(started), "display": {"width": int(width), "height": int(height), "dpi": int(dpi)}}
 
 
 def observe_instance(root: Path, row: dict) -> dict:
@@ -90,13 +92,13 @@ def observe_instance(root: Path, row: dict) -> dict:
     runtime["vmStartTicks"] = process_start(runtime["vmPid"] or 0)
     generation = hashlib.sha256(json.dumps({"index": index, "machineUuid": machine_uuid.lower(), "anchors": anchors}, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
     return {"index": index, "name": row["name"], "physicalGeneration": generation, "machineUuid": machine_uuid.lower(), "androidStarted": row["androidStarted"], "runtime": runtime,
-            "identityEvidence": {"anchors": anchors, "descriptorSha256": hashlib.sha256(raw).hexdigest(), "processCreationClock": "Windows FILETIME100ns since1601; unavailable is null", "runtimeState": row["runtimeState"]}}
+            "identityEvidence": {"anchors": anchors, "descriptorSha256": hashlib.sha256(raw).hexdigest(), "processCreationClock": "Windows FILETIME100ns since1601; unavailable is null", "runtimeState": row["runtimeState"], "display": row["display"], "list2Layout": "index,title,top,bind,started,playerPid,vmPid,width,height,dpi"}}
 
 
 def execute(operation: str, values: dict) -> dict:
     if os.name != "nt":
         raise ValueError("this LDPlayer observation profile requires Windows")
-    selected = read_json(CONFIG_PATH, 65536)["ldplayer"]
+    selected = read_operator_configuration()["ldplayer"]
     console = pinned(selected, "executable")
     root = Path(selected["runtime_root"])
     if console.parent.resolve(strict=True) != root.resolve(strict=True):

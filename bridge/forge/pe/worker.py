@@ -10,8 +10,8 @@ import sys
 import time
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from common.paths import CONFIG_PATH, PRIVATE_ROOT
-from common.static_files import bounded_file, identity, pinned, read_json, run_native, sha256_file, stage_input
+from common.paths import PRIVATE_ROOT
+from common.static_files import bounded_file, identity, pinned, read_json, read_operator_configuration, run_native, sha256_file, stage_input
 
 WORK = PRIVATE_ROOT / "work" / "pe-static"
 MAXIMUM = 256 * 1024 * 1024
@@ -150,7 +150,7 @@ def execute(operation: str, values: dict) -> dict:
             raise ValueError("retained PE result identity or owner mismatch")
         document = read_json(full)
     else:
-        selected = read_json(CONFIG_PATH, 65536)[FAMILIES[operation]]
+        selected = read_operator_configuration()[FAMILIES[operation]]
         workspace = WORK / secrets.token_hex(16)
         workspace.mkdir(parents=True, exist_ok=False)
         document = perform(operation, dict(values), selected, workspace)

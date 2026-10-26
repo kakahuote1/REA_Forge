@@ -1,5 +1,27 @@
 # Verified downstream scope
 
+## Operator configuration and LDPlayer observation closure, 2026-10-26
+
+Nine older helper consumers now use the same explicit configuration-owner
+reader as the native IDA bridge. This permits only the selected operator file;
+target/artifact reads still reject the private configuration and actual Codex
+roots. Three focused owner/schema regressions cover all ten consumers.
+
+The installed LDPlayer9 `list2` uses ten columns, including width/height/DPI.
+The former seven-column parser could absorb runtime fields into the name and
+misidentify display dimensions as PIDs. Its pinned-format producer now parses
+the observed ten-column layout only. Five pure regressions cover Unicode/comma
+names, actual stopped/running records, unknown-layout refusal and physical
+generation rules. Official layout reference:
+[LDPlayer developer guide](https://help.ldmnq.com/docs/LDPlayer-ming-ling-hang-kai-fa-zhe-shi-yong-shuo-ming).
+
+A4.664second real production-configuration tail read the API-hash directory,
+the verifier's own process metadata and LDPlayer instance identities from a
+different working directory. Correct names and null stopped-process PIDs were
+verified. No engine algorithm inventory was repeated, no instance/ADB/GUI was
+started, and no management operation occurred. Device/runtime migration remains
+incomplete; these observations do not establish G13 completion.
+
 ## Official Yakit request/history subset, 2026-10-26
 
 Three native operations passed through production CLI/stdio MCP against owned

@@ -14,8 +14,8 @@ import struct
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from common.paths import CONFIG_PATH, PRIVATE_ROOT
-from common.static_files import bounded_file, identity, json_object, pinned, read_json, run_native, sha256_file, stage_input
+from common.paths import PRIVATE_ROOT
+from common.static_files import bounded_file, identity, json_object, pinned, read_json, read_operator_configuration, run_native, sha256_file, stage_input
 from traffic.api_documents import normalize
 
 FAMILY = {
@@ -287,7 +287,7 @@ def execute(operation: str, values: dict) -> dict:
             raise ValueError("retained traffic result changed or escaped its workspace")
         document = read_json(full, MAX_JSON)
     else:
-        selected = read_json(CONFIG_PATH, 64 * 1024)[FAMILY[operation]]
+        selected = read_operator_configuration()[FAMILY[operation]]
         workspace = WORK_ROOT / secrets.token_hex(16)
         workspace.mkdir(parents=True, exist_ok=False)
         target, document, engine = pcap(operation, values, selected, workspace) if FAMILY[operation] == "pcap" else api_asset(operation, values, selected, workspace)

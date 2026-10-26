@@ -7,8 +7,8 @@ import secrets
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from common.paths import CONFIG_PATH, PRIVATE_ROOT
-from common.static_files import bounded_file, identity, pinned, read_json, run_native, sha256_file, stage_input
+from common.paths import PRIVATE_ROOT
+from common.static_files import bounded_file, identity, pinned, read_json, read_operator_configuration, run_native, sha256_file, stage_input
 from python_reverse.model_runner import MAGICS, ModelMemoryAdmissionError, require_model_memory
 
 FAMILY = {"forge_disassemble_python": "xdis", "forge_decompile_legacy_python": "python_legacy",
@@ -38,7 +38,7 @@ def execute(operation: str, values: dict) -> dict:
             raise ValueError("retained Python result changed or escaped its owner")
         document = read_json(full, 2 * 1024 * 1024)
     else:
-        selected = read_json(CONFIG_PATH, 65536)[FAMILY[operation]]
+        selected = read_operator_configuration()[FAMILY[operation]]
         workspace = WORK / secrets.token_hex(16)
         workspace.mkdir(parents=True, exist_ok=False)
         target, source = stage_input(selected, values["path"], workspace, leaf="input.pyc", maximum=8 * 1024 * 1024)

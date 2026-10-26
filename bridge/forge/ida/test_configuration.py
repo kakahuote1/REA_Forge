@@ -1,4 +1,5 @@
 """Explicit configuration ownership does not exempt target reads or Codex paths."""
+import ast
 from pathlib import Path
 import sys
 import tempfile
@@ -32,6 +33,18 @@ class ConfigurationTests(unittest.TestCase):
         with patch("common.paths.CONFIG_PATH", Path.home() / ".codex/nonexistent-fixture.json"):
             with self.assertRaises(PolicyViolation):
                 read_operator_configuration()
+
+    def test_engine_consumers_use_the_configuration_owner_not_target_file_reads(self):
+        root = Path(__file__).resolve().parent.parent
+        consumers = ["enrichment/worker.py", "android_build/worker.py", "ldplayer/observe.py",
+                     "pe/worker.py", "system/worker.py", "harmony/worker.py", "ida/worker.py",
+                     "traffic/worker.py", "python_reverse/worker.py", "yakit/worker.py"]
+        for name in consumers:
+            with self.subTest(consumer=name):
+                tree = ast.parse((root / name).read_text(encoding="utf-8"))
+                calls = [node for node in ast.walk(tree) if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)]
+                self.assertTrue(any(node.func.id == "read_operator_configuration" for node in calls))
+                self.assertFalse(any(node.func.id == "read_json" and node.args and isinstance(node.args[0], ast.Name) and node.args[0].id == "CONFIG_PATH" for node in calls))
 
 
 if __name__ == "__main__":

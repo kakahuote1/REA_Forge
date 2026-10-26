@@ -9,8 +9,7 @@ import sys
 import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from common.paths import CONFIG_PATH
-from common.static_files import bounded_file, identity, read_json, sha256_file
+from common.static_files import bounded_file, identity, read_json, read_operator_configuration, sha256_file
 from android_build.project_files import WORK, load_receipt, relative
 from android_build.project_ops import build, prepare
 from android_build.dex_ops import assemble, disassemble
@@ -84,7 +83,7 @@ def execute(operation: str, arguments: dict) -> dict:
         receipt, record = load_receipt(arguments)
     else:
         family, function = OPERATIONS[operation]
-        selected = read_json(CONFIG_PATH, 65536)[family]
+        selected = read_operator_configuration()[family]
         workspace = WORK / secrets.token_hex(16)
         workspace.mkdir(parents=True, exist_ok=False)
         record = function(dict(arguments), selected, workspace)

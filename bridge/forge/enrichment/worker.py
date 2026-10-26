@@ -9,8 +9,8 @@ import sys
 import time
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from common.paths import CONFIG_PATH, PRIVATE_ROOT
-from common.static_files import bounded_file, identity, pinned, read_json, run_native, sha256_file, stage_input
+from common.paths import PRIVATE_ROOT
+from common.static_files import bounded_file, identity, pinned, read_json, read_operator_configuration, run_native, sha256_file, stage_input
 
 FAMILY = {
     "forge_analyze_capabilities": "capa", "forge_recover_strings": "floss",
@@ -142,7 +142,7 @@ def execute(operation: str, values: dict) -> dict:
         result.update({"receipt_path": str(receipt), "receipt_sha256": values["receipt_sha256"], "historical_readback": True})
         return {"operation": operation, "target": record["target"], "result": result, "engine": record["engine"],
                 "workspace": str(receipt.parent), "sample_execution": False, "network_used": False}
-    selected = read_json(CONFIG_PATH, 64 * 1024)[family]
+    selected = read_operator_configuration()[family]
     engine_path = pinned(selected, "database" if family == "api_hashes" else "executable")
     workspace = WORK_ROOT / secrets.token_hex(16)
     workspace.mkdir(parents=True, exist_ok=False)
