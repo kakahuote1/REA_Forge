@@ -53,6 +53,9 @@ const sessionEvidence = effects({ mutatesSession: true });
 
 /** Explicit effect audit for every public tool. */
 export const TOOL_EFFECTS: Readonly<Record<string, ToolEffects>> = {
+  forge_yakit_request: effects({ mutatesTarget: true, mutatesSession: true, writesFilesystem: true, launchesProcess: true, accessesNetwork: true, mayDiscardData: true, idempotent: false }),
+  forge_yakit_flows: effects({ mutatesSession: true, writesFilesystem: true, launchesProcess: true, idempotent: false }),
+  forge_read_yakit_result: effects({ mutatesSession: true, writesFilesystem: true, launchesProcess: true }),
   forge_edit_ida_database: effects({
     mutatesSession: true,
     writesFilesystem: true,

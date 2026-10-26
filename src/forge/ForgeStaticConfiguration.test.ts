@@ -279,6 +279,13 @@ describe("explicit Forge static configuration", () => {
 });
 
 describe("independent native engine readiness", () => {
+  it("keeps Yakit result readback independent of an absent official engine", async () => {
+    const input = await fixture();
+    const pin = { path: input.editor, sha256: "a".repeat(64) };
+    await writeFile(input.configurationPath, JSON.stringify({ ...input.document, yakit: { input_roots: [input.inputs], version: "fixture", node: pin, engine: { ...pin, path: join(input.root, "absent-yak.exe") } }, yakit_results: { input_roots: [input.inputs], version: "fixture" } }));
+    expect(await inspectForgeStaticConfiguration("yakit", input.environment, owner())).toMatchObject({ status: "unavailable" });
+    expect(await inspectForgeStaticConfiguration("yakit_results", input.environment, owner())).toMatchObject({ status: "available" });
+  });
   it("keeps Android projects and DEX ready without a signer", async () => {
     const input = await fixture();
     const input_roots = [input.inputs];

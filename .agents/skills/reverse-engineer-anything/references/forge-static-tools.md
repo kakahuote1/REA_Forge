@@ -119,3 +119,17 @@ provided. Use `forge_snapshot_ida_database` and
 `forge_read_ida_result` for retained readback. These are not original plugin or
 raw IDAPython entry points. Raw code, target launch and debugging use the
 selected guest chain, never an attempted host-facade bypass.
+
+## Explicit HTTP requests and private history
+
+Use `forge_yakit_request` for one explicitly selected HTTP(S) destination with
+literal method/headers/UTF8 body; it can mutate that destination. The fixed
+official Yak MCP client disables dynamic tags, redirects and system proxies.
+Keep the profile name to query its own history using `forge_yakit_flows`.
+These are Forge-owned profiles, not the human Yakit GUI database. Preserve
+receipt path and digest for `forge_read_yakit_result`; historical readback does
+not send another request. A timeout or cancellation is not proof the request
+never arrived: inspect the retained diagnostics and do not blindly resubmit.
+The adapter does not expose scanning, scripts, deletion or arbitrary vendor
+tools. DudeSuite is separate and its interface is not established by Yakit.
+See `docs/forge/yakit.md` for version and evidence limitations.

@@ -68,6 +68,7 @@
     "bridge/forge/harmony",
     "bridge/forge/system",
     "bridge/forge/ida",
+    "bridge/forge/yakit",
     "bridge/native/NativeUIChildren.swift",
     "bridge/native/ReaNativeUI.swift",
     "bridge/native/rea_lldb_tracer.py",

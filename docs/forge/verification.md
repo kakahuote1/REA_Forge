@@ -1,5 +1,29 @@
 # Verified downstream scope
 
+## Official Yakit request/history subset, 2026-10-26
+
+Three native operations passed through production CLI/stdio MCP against owned
+loopback HTTP/HTTPS fixtures in33.456seconds. Thirteen checks cover exact
+single-request UTF8/literal tags, self-signed HTTPS without installing trust,
+no redirect following, persistent private HTTPFlow history, retained response
+and exact artifact bytes, rejected authority/script/proxy inputs, actual native
+expiry, active cancellation/profile recovery, missing-engine isolation, CLI
+parity, original hashes and request/fixture cleanup. Catalog304/Forge84 is not
+proof of daily Codex activation.
+
+The pinned engine reports1.4.2-beta2/MCP0.0.2. A real wire failure established
+that optional `repeatTimes=1` prepends a template even with tags disabled; the
+fixed adapter omits that field rather than enabling tag evaluation. It uses
+two fixed official tools, not a general scan/script/plugin API or GUI bridge.
+Flow schema defects, unknown totals/order and UTF8/Go-quoted representations
+are explicit. A timeout cannot prove a request did not reach its destination.
+
+Source160unique checks, targeted type validation and the26.984second production
+build passed; lint had no errors and two scoped style/parameter warnings.
+CPU and peak process-family memory were not measured. No target execution,
+GUI, host proxy/trust change or public-target request was used. DudeSuite's
+separate callable interface remains unresolved, so G18 as a whole is not done.
+
 ## IDA host static analysis, 2026-10-25
 
 Eleven work-IDB operations and REA's unchanged read-only provider semantics

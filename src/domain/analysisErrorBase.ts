@@ -268,10 +268,12 @@ import type { LdPlayerObservationReport } from "./forge/ldplayerObservation.js";
 import type { HarmonyStaticReport } from "./forge/harmonyStatic.js";
 import type { SystemObservationReport } from "./forge/systemObservation.js";
 import type { IdaStaticReport } from "./forge/idaStatic.js";
+import type { YakitReport } from "./forge/yakit.js";
 
 /** Provider-neutral evidence collected before a typed analysis failure. */
 export type AnalysisPartialObservation =
   | IdaStaticReport
+  | YakitReport
   | SystemObservationReport
   | HarmonyStaticReport
   | AndroidBuildReport
